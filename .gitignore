@@ -1,0 +1,19 @@
+# Dependencias (esta es la carpeta más pesada)
+node_modules/
+
+# Configuración y secretos (aquí van tus claves de Postgres)
+.env
+
+# Logs de errores de npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Carpetas de compilación o temporales
+dist/
+build/
+.vscode/

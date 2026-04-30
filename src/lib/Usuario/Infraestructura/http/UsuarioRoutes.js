@@ -17,6 +17,8 @@ module.exports = (controller) => {
 
   // Actividad 2: Operación ELIMINAR (DELETE)
   router.delete("/:id", controller.eliminar);
+  //                                   (EDIT)
+  router.put("/:id", controller.actualizar); 
 
   return router;
 };

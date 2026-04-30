@@ -93,6 +93,20 @@ class UsuarioRepositorySequelize {
       where: { id_Usuario: id }
     });
   }
+
+  async findByEmail(correo) {
+    const doc = await UsuarioModel.findOne({ where: { correo } });
+    if (!doc) return null;
+
+    return new Usuario({
+        id_Usuario: doc.id_Usuario,
+        nombre: doc.nombre,
+        correo: doc.correo,
+        contraseña: doc.contraseña,
+        rol: doc.rol,
+        id_departamento: doc.id_departamento
+    });
+  }
 }
 
 module.exports = UsuarioRepositorySequelize;

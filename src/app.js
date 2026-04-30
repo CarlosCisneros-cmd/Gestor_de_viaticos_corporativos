@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { connection } = require("./Infraestructura/database/Postgres"); // Tu conexión de Sequelize
+const { connection, sequelize } = require("./Infraestructura/database/Postgres"); // Tu conexión de Sequelize
 const registerUserModule = require("./lib/Usuario/Infraestructura/http"); //
 
 async function buildApp() {
@@ -9,7 +9,7 @@ async function buildApp() {
   // 1. Conectar a la Base de Datos (Crucial para el ORM)
   try {
     await connection();
-    //await sequelize.sync(); 
+    await sequelize.sync(); 
 
   } catch (error) {
     console.error("Error al inicializar la base de datos:", error);

@@ -20,7 +20,7 @@ class UsuarioController {
   // Actividad 2: Implementar operación LISTAR [cite: 19]
   listar = async (req, res) => {
     try {
-      const usuarios = await this.listarUsuarios.ejecutar();
+      const usuarios = await this.ListarUsuarios.ejecutar();
       res.json(usuarios);
     } catch (error) {
       res.status(500).json({ error: error.message });

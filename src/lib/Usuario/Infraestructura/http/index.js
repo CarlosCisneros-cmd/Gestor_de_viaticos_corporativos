@@ -6,7 +6,7 @@ const UsuarioRepositorySequelize = require("../UsuarioRepositorySequelize");
 
 // Los Casos de Uso se mantienen igual (Arquitectura Hexagonal)
 const CrearUsuario = require("../../Aplicacion/CrearUsuario");
-const ListarUsuario = require("../../Aplicacion/ListarUsuario");
+const ListarUsuario = require("../../Aplicacion/ListarUsuarios");
 const ListarPorId = require("../../Aplicacion/ListarPorId");
 
 
@@ -18,8 +18,8 @@ module.exports = function registerUserModule(app) {
   // Cada caso de uso recibe el repositorio de Sequelize
   const controller = new UsuarioController({
     crearUsuario: new CrearUsuario(repo),
-    //listarUsuario: new ListarUsuario(repo),
-    //ListarPorId: new ListarPorId(repo),
+    //ListarUsuarios: new ListarUsuarios(repo),
+    ListarPorId: new ListarPorId(repo),
   });
 
   // 3. Registramos las rutas en la aplicación Express

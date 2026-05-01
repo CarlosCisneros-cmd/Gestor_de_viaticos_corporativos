@@ -20,7 +20,7 @@ module.exports = function registerUserModule(app) {
   // 2. Inyectamos las dependencias en el controlador
   // Cada caso de uso recibe el repositorio de Sequelize
   const controller = new UsuarioController({
-    crearUsuario: new CrearUsuario(repo),
+    CrearUsuario: new CrearUsuario(repo),
     ActualizarUsuario: new ActualizarUsuario(repo),
     ListarUsuarios: new ListarUsuarios(repo),
     ListarPorId: new ListarPorId(repo),

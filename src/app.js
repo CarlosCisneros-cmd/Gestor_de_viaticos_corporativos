@@ -2,10 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const { connection, sequelize } = require("./Infraestructura/database/Postgres"); 
 
-// Importación de Módulos
+// Importación de Módulos existentes
 const registerUserModule = require("./lib/Usuario/Infraestructura/http");
-// 1. Importamos el nuevo módulo de Departamentos
 const registerDepartamentosModule = require("./lib/Departamentos/Infraestructura/http");
+
+// 1. Importamos los nuevos módulos de Gastos y Categorías
+const registerGastoModule = require("./lib/Gastos/Infraestructura/http");
+const registerCategoriaModule = require("./lib/Categorias/Infraestructura/http");
 
 async function buildApp() {
   const app = express();
@@ -13,6 +16,10 @@ async function buildApp() {
   // 1. Conectar a la Base de Datos
   try {
     await connection();
+    
+    // IMPORTANTE: Aquí podrías importar tus modelos manualmente si ves que 
+    // sequelize.sync() no detecta las relaciones al inicio.
+    
     // sync() se encarga de crear las tablas y las relaciones (FKs) en Postgres
     await sequelize.sync({ alter: true }); 
     console.log("Tablas sincronizadas correctamente.");
@@ -28,8 +35,11 @@ async function buildApp() {
 
   // 3. Registro de Módulos (Inyección de Dependencias)
   registerUserModule(app);
-  // 2. Registramos el módulo de Departamentos
   registerDepartamentosModule(app);
+  
+  // 2. Registramos los nuevos módulos
+  registerCategoriaModule(app); // Se recomienda registrar categorías antes que gastos
+  registerGastoModule(app);
 
   // 4. Manejo de rutas no encontradas (404)
   app.use((req, res) => {

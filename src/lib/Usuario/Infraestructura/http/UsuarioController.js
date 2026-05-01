@@ -1,7 +1,7 @@
 class UsuarioController {
   // El constructor recibe los Casos de Uso (Aplicación)
-  constructor({ crearUsuario, ListarUsuarios, ListarPorId, EliminarUsuario, ActualizarUsuario }) {
-    this.crearUsuario = crearUsuario;
+  constructor({ CrearUsuario, ListarUsuarios, ListarPorId, EliminarUsuario, ActualizarUsuario }) {
+    this.CrearUsuario = CrearUsuario;
     this.ListarUsuarios = ListarUsuarios;
     this.ListarPorId = ListarPorId;
     this.EliminarUsuario = EliminarUsuario;
@@ -11,7 +11,7 @@ class UsuarioController {
   // Actividad 2: Implementar operación CREAR [cite: 19]
   crear = async (req, res) => {
     try {
-      const usuario = await this.crearUsuario.ejecutar(req.body);
+      const usuario = await this.CrearUsuario.ejecutar(req.body);
       res.status(201).json(usuario);
     } catch (error) {
       res.status(400).json({ error: error.message });

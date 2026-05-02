@@ -4,7 +4,8 @@ class ActualizarUsuario {
   }
 
   async ejecutar(id, datosNuevos) {
-
+    
+    //validacion
     if (datosNuevos.correo) {
       const usuarioExistente = await this.IUsuarioRepositorio.findByEmail(datosNuevos.correo);
       

@@ -6,9 +6,11 @@ const { connection, sequelize } = require("./Infraestructura/database/Postgres")
 const registerUserModule = require("./lib/Usuario/Infraestructura/http");
 const registerDepartamentosModule = require("./lib/Departamentos/Infraestructura/http");
 
-// 1. Importamos los nuevos módulos de Gastos y Categorías
+// 1. Importamos los nuevos módulos 
 const registerGastoModule = require("./lib/Gastos/Infraestructura/http");
 const registerCategoriaModule = require("./lib/Categorias/Infraestructura/http");
+const registerViaticoModule = require("./lib/Viaticos/Infraestructura/http");
+
 
 async function buildApp() {
   const app = express();
@@ -38,8 +40,10 @@ async function buildApp() {
   registerDepartamentosModule(app);
   
   // 2. Registramos los nuevos módulos
+  registerViaticoModule(app);
   registerCategoriaModule(app); // Se recomienda registrar categorías antes que gastos
   registerGastoModule(app);
+  
 
   // 4. Manejo de rutas no encontradas (404)
   app.use((req, res) => {

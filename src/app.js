@@ -1,30 +1,33 @@
 const express = require("express");
 const cors = require("cors");
-const { connection, sequelize } = require("./Infraestructura/database/Postgres"); 
+
+const { connection: connectPostgres, sequelize } = require("./Infraestructura/database/Postgres"); 
+const { connection: connectMongo } = require("./Infraestructura/database/Mongo"); // Importamos y renombramos
 
 // Importación de Módulos existentes
 const registerUserModule = require("./lib/Usuario/Infraestructura/http");
 const registerDepartamentosModule = require("./lib/Departamentos/Infraestructura/http");
 
-// 1. Importamos los nuevos módulos 
+// Importamos los nuevos módulos 
 const registerGastoModule = require("./lib/Gastos/Infraestructura/http");
 const registerCategoriaModule = require("./lib/Categorias/Infraestructura/http");
 const registerViaticoModule = require("./lib/Viaticos/Infraestructura/http");
-
+const registerEvidenciasModule = require("./lib/Evidencias/Infraestructura/http");
 
 async function buildApp() {
   const app = express();
 
-  // 1. Conectar a la Base de Datos
+  // 1. Conectar a las Bases de Datos
   try {
-    await connection();
-    
-    // IMPORTANTE: Aquí podrías importar tus modelos manualmente si ves que 
-    // sequelize.sync() no detecta las relaciones al inicio.
-    
-    // sync() se encarga de crear las tablas y las relaciones (FKs) en Postgres
+    // Conectamos PostgreSQL
+    await connectPostgres();
     await sequelize.sync({ alter: true }); 
     console.log("Tablas sincronizadas correctamente.");
+
+    //Llamamos a la función para conectar Mongo
+    await connectMongo(); 
+    console.log("MongoDB conectado correctamente.");
+
   } catch (error) {
     console.error("Error al inicializar la base de datos:", error);
     process.exit(1); 
@@ -39,12 +42,11 @@ async function buildApp() {
   registerUserModule(app);
   registerDepartamentosModule(app);
   
-  // 2. Registramos los nuevos módulos
   registerViaticoModule(app);
-  registerCategoriaModule(app); // Se recomienda registrar categorías antes que gastos
+  registerCategoriaModule(app); 
   registerGastoModule(app);
+  registerEvidenciasModule(app);
   
-
   // 4. Manejo de rutas no encontradas (404)
   app.use((req, res) => {
     res.status(404).json({ message: "Ruta no encontrada en el servidor ORM" });

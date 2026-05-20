@@ -12,7 +12,7 @@ class GastosRepositorySequelize {
       fecha_gasto: gasto.fecha_gasto,
       descripcion: gasto.descripcion,
       foto_comprobante: gasto.foto_comprobante,
-      estado_gasto: gasto.estado_gasto
+      estado_gasto: gasto.estado_gasto,
     });
 
     return new Gastos({
@@ -23,14 +23,14 @@ class GastosRepositorySequelize {
       fecha_gasto: doc.fecha_gasto,
       descripcion: doc.descripcion,
       foto_comprobante: doc.foto_comprobante,
-      estado_gasto: doc.estado_gasto
+      estado_gasto: doc.estado_gasto,
     });
   }
 
   // Operación: OBTENER POR ID (Con su categoría)
   async findById(id) {
     const doc = await GastosModel.findByPk(id, {
-      include: [{ model: CategoriaModel, as: 'categoria' }]
+      include: [{ model: CategoriaModel, as: "categoria" }],
     });
 
     if (!doc) return null;
@@ -43,7 +43,7 @@ class GastosRepositorySequelize {
       fecha_gasto: doc.fecha_gasto,
       descripcion: doc.descripcion,
       foto_comprobante: doc.foto_comprobante,
-      estado_gasto: doc.estado_gasto
+      estado_gasto: doc.estado_gasto,
     });
 
     if (doc.categoria) {
@@ -56,7 +56,7 @@ class GastosRepositorySequelize {
   // Operación: LISTAR TODOS
   async findAll() {
     const docs = await GastosModel.findAll({
-      include: [{ model: CategoriaModel, as: 'categoria' }]
+      include: [{ model: CategoriaModel, as: "categoria" }],
     });
 
     return docs.map((doc) => {
@@ -68,7 +68,7 @@ class GastosRepositorySequelize {
         fecha_gasto: doc.fecha_gasto,
         descripcion: doc.descripcion,
         foto_comprobante: doc.foto_comprobante,
-        estado_gasto: doc.estado_gasto
+        estado_gasto: doc.estado_gasto,
       });
 
       if (doc.categoria) {
@@ -82,7 +82,7 @@ class GastosRepositorySequelize {
   async findByViatico(id_viatico) {
     const docs = await GastosModel.findAll({
       where: { id_viatico },
-      include: [{ model: CategoriaModel, as: 'categoria' }]
+      include: [{ model: CategoriaModel, as: "categoria" }],
     });
 
     return docs.map((doc) => {
@@ -94,7 +94,7 @@ class GastosRepositorySequelize {
         fecha_gasto: doc.fecha_gasto,
         descripcion: doc.descripcion,
         foto_comprobante: doc.foto_comprobante,
-        estado_gasto: doc.estado_gasto
+        estado_gasto: doc.estado_gasto,
       });
 
       if (doc.categoria) {
@@ -106,15 +106,18 @@ class GastosRepositorySequelize {
 
   // Operación: ACTUALIZAR
   async update(id, gastoData) {
-    const [affectedCount] = await GastosModel.update({
-      id_categoria: gastoData.id_categoria,
-      monto: gastoData.monto,
-      descripcion: gastoData.descripcion,
-      foto_comprobante: gastoData.foto_comprobante,
-      estado_gasto: gastoData.estado_gasto
-    }, {
-      where: { id_gasto: id }
-    });
+    const [affectedCount] = await GastosModel.update(
+      {
+        id_categoria: gastoData.id_categoria,
+        monto: gastoData.monto,
+        descripcion: gastoData.descripcion,
+        foto_comprobante: gastoData.foto_comprobante,
+        estado_gasto: gastoData.estado_gasto,
+      },
+      {
+        where: { id_gasto: id },
+      },
+    );
 
     if (affectedCount === 0) return null;
     return this.findById(id);
@@ -123,7 +126,7 @@ class GastosRepositorySequelize {
   // Operación: ELIMINAR
   async delete(id) {
     return await GastosModel.destroy({
-      where: { id_gasto: id }
+      where: { id_gasto: id },
     });
   }
 }

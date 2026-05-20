@@ -2,77 +2,124 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
+import Button from "@mui/material/Button";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-
-// 1. Columnas mapeadas directamente desde tu tabla "Viaticos"
-const columns: GridColDef[] = [
-  {
-    field: "descripcion_viatico",
-    headerName: "Descripción / Motivo",
-    width: 220,
-  },
-
-  {
-    field: "presupuesto_asignado",
-    headerName: "Presupuesto ($)",
-    width: 150,
-    valueFormatter: (value) => {
-      return value ? `$${Number(value).toFixed(2)}` : "$0.00";
-    },
-  },
-  {
-    field: "estado_aprobacion",
-    headerName: "Estado",
-    width: 140,
-    renderCell: (params) => {
-      const estado = params.value;
-      let color: "warning" | "success" | "error" = "warning";
-
-      if (estado === "Aprobado") color = "success";
-      if (estado === "Rechazado") color = "error";
-
-      return (
-        <Chip label={estado} color={color} size="small" variant="outlined" />
-      );
-    },
-  },
-  { field: "fecha_solicitud", headerName: "F. Solicitud", width: 130 },
-  { field: "feacha_inicio", headerName: "Fecha Inicio", width: 130 }, // Mapeado como tu BD
-  { field: "fecha_fin", headerName: "Fecha Fin", width: 130 },
-];
-
-// 2. Datos simulados usando la estructura exacta de tus columnas de PostgreSQL
-const rows = [
-  {
-    id: 1, // El DataGrid de MUI necesita obligatoriamente un campo "id" único
-    descripcion_viatico: "Capacitación de Sistemas en Guayaquil",
-    fecha_solicitud: "15/05/2026",
-    feacha_inicio: "18/05/2026",
-    fecha_fin: "20/05/2026",
-    presupuesto_asignado: "150.00",
-    estado_aprobacion: "Pendiente",
-  },
-  {
-    id: 2,
-    descripcion_viatico: "Auditoría Sucursal Cuenca",
-    fecha_solicitud: "10/05/2026",
-    feacha_inicio: "12/05/2026",
-    fecha_fin: "14/05/2026",
-    presupuesto_asignado: "85.50",
-    estado_aprobacion: "Aprobado",
-  },
-  {
-    id: 3,
-    descripcion_viatico: "Reunión con Proveedores Manta",
-    fecha_solicitud: "28/04/2026",
-    feacha_inicio: "01/05/2026",
-    fecha_fin: "03/05/2026",
-    presupuesto_asignado: "210.00",
-    estado_aprobacion: "Rechazado",
-  },
-];
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ListarViaticos() {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // 1. Inicializa el hook aquí
+
+  const columns: GridColDef[] = useMemo(
+    () => [
+      {
+        field: "descripcion_Viatico",
+        headerName: "Descripción / Motivo",
+        flex: 1.5,
+        minWidth: 220,
+      },
+      {
+        field: "presupuesto_asignado",
+        headerName: "Presupuesto ($)",
+        flex: 0.8,
+        minWidth: 130,
+        valueFormatter: (value) =>
+          value ? `$${Number(value).toFixed(2)}` : "$0.00",
+      },
+      {
+        field: "estado_Viatico",
+        headerName: "Estado",
+        flex: 0.8,
+        minWidth: 120,
+        renderCell: (params) => {
+          const estado = params.value;
+          let color: "warning" | "success" | "error" = "warning";
+
+          if (estado === "Aprobado") color = "success";
+          if (estado === "Rechazado") color = "error";
+
+          return (
+            <Chip
+              label={estado || "Pendiente"}
+              color={color}
+              size="small"
+              variant="outlined"
+            />
+          );
+        },
+      },
+      {
+        field: "fecha_solicitud",
+        headerName: "F. Solicitud",
+        flex: 0.8,
+        minWidth: 110,
+        valueFormatter: (value) => {
+          if (!value) return "";
+          const fecha = new Date(value);
+          if (isNaN(fecha.getTime())) return value;
+          const dia = String(fecha.getDate()).padStart(2, "0");
+          const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+          const anio = fecha.getFullYear();
+          return `${anio}-${mes}-${dia}`;
+        },
+      },
+      {
+        field: "fecha_inicio",
+        headerName: "Fecha Inicio",
+        flex: 0.8,
+        minWidth: 110,
+      },
+      { field: "fecha_fin", headerName: "Fecha Fin", flex: 0.8, minWidth: 110 },
+      {
+        field: "acciones",
+        headerName: "Gastos",
+        flex: 1,
+        minWidth: 150,
+        sortable: false,
+        disableColumnMenu: true,
+        renderCell: (params) => {
+          return (
+            <Button
+              variant="contained"
+              size="small"
+              color="primary"
+              startIcon={<ReceiptLongIcon />}
+              // 3. AQUÍ ESTÁ EL CAMBIO:
+              onClick={() =>
+                navigate(`/viaticos/${params.row.id_Viatico}/gastos`)
+              }
+              sx={{ textTransform: "none", borderRadius: 2, fontWeight: 500 }}
+            >
+              Ver Gastos
+            </Button>
+          );
+        },
+      },
+    ],
+    [navigate],
+  ); // Dependencia de navigate
+
+  useEffect(() => {
+    const cargarViaticos = async () => {
+      try {
+        // Asegúrate de que esta URL apunte al puerto de tu backend Node.js
+        const response = await fetch("http://localhost:3977/api/viaticos");
+        if (response.ok) {
+          const data = await response.json();
+          setRows(data);
+        }
+      } catch (error) {
+        console.error("Error de conexión:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    cargarViaticos();
+  }, []);
+
   return (
     <Box sx={{ width: "100%", mt: 2 }}>
       <Box>
@@ -88,17 +135,17 @@ export default function ListarViaticos() {
         <DataGrid
           rows={rows}
           columns={columns}
+          loading={loading}
+          getRowId={(row) => row.id_Viatico}
           pageSizeOptions={[5, 10]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 5 } },
-          }}
+          initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
           checkboxSelection
           disableRowSelectionOnClick
           getRowHeight={() => "auto"}
           sx={{
             border: 0,
             "& .MuiDataGrid-cell": {
-              whiteSpace: "normal",
+              whiteSpace: "pre-wrap",
               lineHeight: "1.4",
               paddingY: "12px",
               display: "flex",

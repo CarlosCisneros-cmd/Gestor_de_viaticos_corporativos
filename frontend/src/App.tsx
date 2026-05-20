@@ -1,66 +1,74 @@
-import { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // IMPORTANTE
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
+import CssBaseline from "@mui/material/CssBaseline";
+import AppTheme from "./shared-theme/AppTheme";
+
+// Componentes
 import AppNavbar from "./dashboard/components/AppNavbar";
 import Header from "./dashboard/components/Header";
 import SideMenu from "./dashboard/components/MenuLateral";
 
-// Nuestras Vistas
+// Vistas
 import ListarViaticos from "./vistas/ListarViaticos";
 import IngresarViatico from "./vistas/IngresarViatico";
+import DetalleGastos from "./vistas/DetalleGastos";
 
-export default function App() {
-  // Estado para saber qué vista renderizar: 'listar' o 'crear'
-  const [vistaActual, setVistaActual] = useState<string>("listar");
-
+export default function App(props: { disableCustomTheme?: boolean }) {
   return (
-    <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
-      {/* Barra Lateral fija */}
-      <SideMenu setVistaActual={setVistaActual} vistaActual={vistaActual} />
-      <AppNavbar />
+    <AppTheme {...props}>
+      <CssBaseline enableColorScheme />
+      <BrowserRouter>
+        {" "}
+        {/* <--- ENVOLVEMOS TODO AQUÍ */}
+        <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
+          {/* El Sidebar ahora manejará navegación, no estados */}
+          <SideMenu />
+          <AppNavbar />
 
-      {/* Contenedor Principal Ajustado al Sistema Elástico de MUI */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          height: "100vh",
-          overflow: "auto",
-          backgroundColor: "background.default",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Stack
-          spacing={3}
-          sx={{
-            alignItems: "center",
-            mx: 3,
-            pb: 5,
-            mt: { xs: 8, md: 3 }, // Ajuste de margen superior dinámico
-            width: "auto", // Deja que flexbox calcule el espacio real
-          }}
-        >
-          {/* El Wrapper que fuerza a que tanto el Header como las vistas compartan el mismo ancho máximo */}
-          <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
-            <Header />
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              height: "100vh",
+              overflow: "auto",
+              display: "flex",
+              flexDirection: "column",
+              bgcolor: "background.default",
+            }}
+          >
+            <Stack
+              spacing={3}
+              sx={{
+                alignItems: "center",
+                mx: 3,
+                pb: 5,
+                mt: { xs: 8, md: 3 },
+                width: "auto",
+              }}
+            >
+              <Box
+                sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}
+              >
+                <Header />
 
-            <Box sx={{ mt: 4, width: "100%" }}>
-              {/* Renderizado condicional según el botón presionado */}
-              {vistaActual === "listar" && <ListarViaticos />}
-              {vistaActual === "crear" && <IngresarViatico />}
-              {vistaActual !== "listar" && vistaActual !== "crear" && (
-                <Box sx={{ p: 3 }}>
-                  <p>
-                    Esta sección (Administración / Reportes) se habilitará más
-                    adelante.
-                  </p>
+                {/* AQUÍ DEFINIMOS TUS RUTAS REALES */}
+                <Box sx={{ mt: 4, width: "100%" }}>
+                  <Routes>
+                    <Route path="/" element={<Navigate to="/viaticos" />} />
+                    <Route path="/viaticos" element={<ListarViaticos />} />
+                    <Route path="/crear" element={<IngresarViatico />} />
+                    <Route
+                      path="/viaticos/:id/gastos"
+                      element={<DetalleGastos />}
+                    />
+                  </Routes>
                 </Box>
-              )}
-            </Box>
+              </Box>
+            </Stack>
           </Box>
-        </Stack>
-      </Box>
-    </Box>
+        </Box>
+      </BrowserRouter>
+    </AppTheme>
   );
 }

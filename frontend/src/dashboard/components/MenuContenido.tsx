@@ -4,6 +4,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
+import { useNavigate, useLocation } from "react-router-dom"; // IMPORTANTE
 
 // Iconos
 import FlightTakeoffRoundedIcon from "@mui/icons-material/FlightTakeoffRounded";
@@ -12,37 +13,31 @@ import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 
-interface MenuContenidoProps {
-  vistaActual: string;
-  setVistaActual: (vista: string) => void;
-}
+export default function MenuContenido() {
+  const navigate = useNavigate();
+  const location = useLocation(); // Hook para saber en qué ruta estamos
 
-export default function MenuContenido({
-  vistaActual,
-  setVistaActual,
-}: MenuContenidoProps) {
-  // Elementos principales del empleado vinculados a un identificador ('listar' o 'crear')
   const mainListItems = [
     {
       text: "Mis Solicitudes",
       icon: <ReceiptLongRoundedIcon />,
-      idVista: "listar",
+      path: "/viaticos",
     },
     {
       text: "Crear Viático",
       icon: <FlightTakeoffRoundedIcon />,
-      idVista: "crear",
+      path: "/crear",
     },
     {
       text: "Aprobaciones",
       icon: <FactCheckRoundedIcon />,
-      idVista: "aprobaciones",
+      path: "/aprobaciones",
     },
   ];
 
   const secondaryListItems = [
-    { text: "Configuración", icon: <SettingsRoundedIcon />, idVista: "config" },
-    { text: "Acerca de", icon: <InfoRoundedIcon />, idVista: "about" },
+    { text: "Configuración", icon: <SettingsRoundedIcon />, path: "/config" },
+    { text: "Acerca de", icon: <InfoRoundedIcon />, path: "/about" },
   ];
 
   return (
@@ -51,9 +46,9 @@ export default function MenuContenido({
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: "block" }}>
             <ListItemButton
-              // Si el id de la vista coincide, se sombrea azul automáticamente
-              selected={vistaActual === item.idVista}
-              onClick={() => setVistaActual(item.idVista)}
+              // El botón se ilumina si la ruta actual coincide
+              selected={location.pathname === item.path}
+              onClick={() => navigate(item.path)}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
@@ -66,8 +61,8 @@ export default function MenuContenido({
         {secondaryListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: "block" }}>
             <ListItemButton
-              selected={vistaActual === item.idVista}
-              onClick={() => setVistaActual(item.idVista)}
+              selected={location.pathname === item.path}
+              onClick={() => navigate(item.path)}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />

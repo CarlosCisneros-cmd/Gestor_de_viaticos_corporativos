@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import MenuContenido from "./MenuContenido"; // Asegúrate de que coincida con tu nombre de archivo
+import MenuContenido from "./MenuContenido";
 import OptionsMenu from "./OptionsMenu";
 import WorkHistoryRoundedIcon from "@mui/icons-material/WorkHistoryRounded";
 
@@ -21,16 +21,7 @@ const Drawer = styled(MuiDrawer)({
   },
 });
 
-// Definimos los tipos de los props para TypeScript
-interface SideMenuProps {
-  vistaActual: string;
-  setVistaActual: (vista: string) => void;
-}
-
-export default function SideMenu({
-  vistaActual,
-  setVistaActual,
-}: SideMenuProps) {
+export default function SideMenu() {
   return (
     <Drawer variant="permanent" sx={{ display: { xs: "none", md: "block" } }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, p: 2.5 }}>
@@ -54,11 +45,8 @@ export default function SideMenu({
           flexDirection: "column",
         }}
       >
-        {/* Pasamos los controles al contenido del menú */}
-        <MenuContenido
-          vistaActual={vistaActual}
-          setVistaActual={setVistaActual}
-        />
+        {/* Ya no pasamos props de estado */}
+        <MenuContenido />
       </Box>
 
       <Stack
@@ -72,7 +60,6 @@ export default function SideMenu({
         }}
       >
         <Avatar
-          sizes="small"
           alt="Jose Martinez"
           src="/static/images/avatar/7.jpg"
           sx={{ width: 36, height: 36 }}

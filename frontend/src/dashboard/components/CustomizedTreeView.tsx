@@ -1,6 +1,6 @@
 import * as React from "react";
 import clsx from "clsx";
-import { type animated, useSpring } from "@react-spring/web";
+import { animated, useSpring } from "@react-spring/web";
 import { type TransitionProps } from "@mui/material/transitions";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";

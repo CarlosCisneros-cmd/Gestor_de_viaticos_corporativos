@@ -1,11 +1,18 @@
 class GastosController {
-  // Ajustamos los nombres para que coincidan exactamente con tus archivos y clases (Mayúsculas)
-  constructor({ CrearGastos, ListarGastos, ListarPorId, EliminarGastos, ActualizarGastos }) {
+  constructor({
+    CrearGastos,
+    ListarGastos,
+    ListarPorId,
+    EliminarGastos,
+    ActualizarGastos,
+    ListarPorViatico,
+  }) {
     this.crearGastos = CrearGastos;
     this.listarGastos = ListarGastos;
     this.listarPorId = ListarPorId;
     this.eliminarGastos = EliminarGastos;
     this.actualizarGastos = ActualizarGastos;
+    this.listarPorViaticoService = ListarPorViatico; // Inyectamos el servicio
   }
 
   // Operación: CREAR GASTO
@@ -59,15 +66,30 @@ class GastosController {
     try {
       const { id } = req.params;
       const datos = req.body;
-      
+
       const resultado = await this.actualizarGastos.ejecutar(id, datos);
-      
+
       res.status(200).json({
         message: "Gasto actualizado con éxito",
-        data: resultado
+        data: resultado,
       });
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  };
+
+  listarPorViatico = async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const gastos = await this.listarPorViaticoService.ejecutar(id);
+
+      res.status(200).json(gastos);
+    } catch (error) {
+      console.error("Error en listarPorViatico:", error);
+      res
+        .status(500)
+        .json({ message: "Error al obtener gastos", error: error.message });
     }
   };
 }

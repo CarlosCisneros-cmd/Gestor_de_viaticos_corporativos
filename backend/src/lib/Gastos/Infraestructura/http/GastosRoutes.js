@@ -21,5 +21,8 @@ module.exports = (controller) => {
   // Operación ACTUALIZAR (PUT)
   router.put("/:id", controller.actualizar);
 
+  // Nueva ruta para listar gastos de un viatico específico
+  router.get("/viatico/:id", controller.listarPorViatico);
+
   return router;
 };

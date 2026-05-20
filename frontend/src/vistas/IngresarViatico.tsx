@@ -15,40 +15,67 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded";
 
 export default function IngresarViatico() {
-  // Estado para manejar los datos del formulario (basado en tu BD)
   const [formData, setFormData] = useState({
-    descripcion_viatico: "",
-    presupuesto_asignado: "",
-    feacha_inicio: "",
+    descripcion_Viatico: "",
+    fecha_inicio: "",
     fecha_fin: "",
+    presupuesto_asignado: "",
   });
 
-  // Manejador de cambios en los inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // Manejador del envío
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Datos a enviar al Backend:", formData);
-    alert("Solicitud enviada correctamente (Simulación)");
-  };
 
+    try {
+      // Ajusta el puerto según donde corra el servidor express
+      const response = await fetch("http://localhost:3799/api/viaticos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          descripcion_Viatico: formData.descripcion_Viatico,
+          fecha_inicio: formData.fecha_inicio,
+          fecha_fin: formData.fecha_fin,
+          presupuesto_asignado: parseFloat(formData.presupuesto_asignado),
+          id_usuario: 7, // <-- Obligatorio por tu modelo (quemado temporalmente)
+        }),
+      });
+
+      if (response.ok) {
+        alert("¡Solicitud de viático enviada correctamente!");
+        setFormData({
+          descripcion_Viatico: "",
+          fecha_inicio: "",
+          fecha_fin: "",
+          presupuesto_asignado: "",
+        });
+      } else {
+        const errorData = await response.json();
+        alert(`Error al guardar: ${errorData.message || "Revisa los datos"}`);
+      }
+    } catch (error) {
+      console.error("Error en la petición:", error);
+      alert("No se pudo conectar con el servidor.");
+    }
+  };
   const handleReset = () => {
     setFormData({
-      descripcion_viatico: "",
-      presupuesto_asignado: "",
-      feacha_inicio: "",
+      descripcion_Viatico: "",
+      fecha_inicio: "",
       fecha_fin: "",
+      presupuesto_asignado: "",
     });
   };
 
   return (
-    // Forzamos a que el Box principal ocupe todo el ancho disponible sin restricciones
     <Box sx={{ width: "100%", mt: 2 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -60,22 +87,53 @@ export default function IngresarViatico() {
         </Typography>
       </Box>
 
-      {/* Agregamos width: '100%' explícito al Paper */}
-      <Paper variant="outlined" sx={{ p: 4, borderRadius: 3, width: "100%" }}>
-        <Box component="form" onSubmit={handleSubmit}>
+      <Paper
+        variant="outlined"
+        sx={{
+          p: 4,
+          borderRadius: 3,
+          width: "100%",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            "& .MuiInputLabel-root": {
+              backgroundColor: "background.paper",
+              px: 2,
+              ml: -0.5,
+              borderRadius: 1,
+              border: "0.05px solid",
+              borderColor: "divider",
+            },
+          }}
+        >
           <Grid container spacing={3}>
             {/* Descripción / Motivo */}
             <Grid size={12}>
               <TextField
                 fullWidth
                 label="Descripción o Motivo del Viático"
-                name="descripcion_viatico"
+                name="descripcion_Viatico"
                 multiline
                 rows={3}
-                placeholder="Ej: Alimentación y combustible para la inspección de la semana..."
-                value={formData.descripcion_viatico}
+                placeholder="Ej: Alimentación y combustible..."
+                value={formData.descripcion_Viatico}
                 onChange={handleChange}
                 required
+                slotProps={{
+                  inputLabel: { shrink: true },
+                }}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: "auto",
+                    minHeight: "100px",
+                    alignItems: "flex-start",
+                    padding: "12px 14px",
+                  },
+                }}
               />
             </Grid>
 
@@ -84,12 +142,12 @@ export default function IngresarViatico() {
               <TextField
                 fullWidth
                 label="Fecha de Inicio"
-                name="feacha_inicio"
+                name="fecha_inicio"
                 type="date"
                 slotProps={{
                   inputLabel: { shrink: true },
                 }}
-                value={formData.feacha_inicio}
+                value={formData.fecha_inicio}
                 onChange={handleChange}
                 required
               />

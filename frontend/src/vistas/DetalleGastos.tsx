@@ -14,6 +14,12 @@ import {
   type GridColDef,
   type GridRenderCellParams,
 } from "@mui/x-data-grid";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+import IngresarGasto from "./IngresarGastos";
 
 interface Gasto {
   id_gasto: number;
@@ -21,28 +27,61 @@ interface Gasto {
   fecha_gasto: string;
   descripcion: string;
   estado_gasto: "Pendiente" | "Aceptado" | "Observado";
+  id_categoria?: number; // Añadido por si acaso
 }
 
 export default function DetalleGastos() {
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const ROL_ACTUAL = "empleado";
+  const [gastoAEditar, setGastoAEditar] = useState<Gasto | null>(null);
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Iniciamos el presupuesto en 0 ya que se cargará de la base de datos
   const [presupuesto, setPresupuesto] = useState<number>(0);
-  //Estado para guardar el motivo/nombre del viático y mostrarlo en el título
   const [motivoViatico, setMotivoViatico] = useState<string>("");
 
-  // Calculamos el total de los gastos
   const totalGastos = gastos.reduce(
     (sum, gasto) => sum + Number(gasto.monto),
     0,
   );
   const isOverBudget = totalGastos > presupuesto;
 
-  // Definición de columnas corregida y tipada
+  const handleEditarGasto = (fila: Gasto) => {
+    setGastoAEditar(fila);
+    setModalAbierto(true);
+  };
+
+  const handleEliminarGasto = async (idGasto: number) => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar este gasto?",
+    );
+    if (!confirmar) return;
+
+    try {
+      const respuesta = await fetch(
+        `http://localhost:3977/api/gastos/${idGasto}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (respuesta.ok) {
+        setGastos((gastosAnteriores) =>
+          gastosAnteriores.filter((g) => g.id_gasto !== idGasto),
+        );
+      } else {
+        alert("Hubo un problema al intentar eliminar el gasto.");
+      }
+    } catch (error) {
+      console.error("Error de conexión:", error);
+      alert("Error de conexión con el servidor.");
+    }
+  };
+
   const columns: GridColDef[] = useMemo(
     () => [
       {
@@ -81,8 +120,13 @@ export default function DetalleGastos() {
         field: "fecha_gasto",
         headerName: "Fecha",
         flex: 0.8,
-        valueFormatter: (value: any) =>
-          new Date(value).toLocaleDateString("es-ES"),
+        valueFormatter: (value: any) => {
+          if (!value) return "";
+          // SOLUCIÓN ZONA HORARIA: Cortamos el texto original para no perder el día
+          const datePart = String(value).split("T")[0]; // "2026-05-17"
+          const [year, month, day] = datePart.split("-");
+          return `${day}/${month}/${year}`;
+        },
       },
       {
         field: "estado_gasto",
@@ -106,6 +150,39 @@ export default function DetalleGastos() {
           );
         },
       },
+      {
+        field: "acciones",
+        headerName: "Acciones",
+        flex: 1,
+        sortable: false,
+        renderCell: (params: GridRenderCellParams) => {
+          const isEmpleado = ROL_ACTUAL === "empleado";
+
+          return (
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Tooltip title={isEmpleado ? "Editar" : "Asignar estado"}>
+                <IconButton
+                  color="primary"
+                  onClick={() => handleEditarGasto(params.row)}
+                >
+                  {isEmpleado ? <EditIcon /> : <FactCheckIcon />}
+                </IconButton>
+              </Tooltip>
+
+              {isEmpleado && (
+                <Tooltip title="Eliminar">
+                  <IconButton
+                    color="error"
+                    onClick={() => handleEliminarGasto(params.row.id_gasto)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          );
+        },
+      },
     ],
     [],
   );
@@ -114,8 +191,6 @@ export default function DetalleGastos() {
     const fetchDatos = async () => {
       try {
         setLoading(true);
-
-        // 1. Petición para listar los gastos del viático
         const responseGastos = await fetch(
           `http://localhost:3977/api/gastos/viatico/${id}`,
         );
@@ -124,7 +199,6 @@ export default function DetalleGastos() {
           setGastos(dataGastos);
         }
 
-        // 2. Petición para obtener el presupuesto real del viático
         const responseViatico = await fetch(
           `http://localhost:3977/api/viaticos/${id}`,
         );
@@ -156,7 +230,6 @@ export default function DetalleGastos() {
         Volver a Viáticos
       </Button>
 
-      {/* CABECERA CON LAS TARJETAS Y EL BOTÓN */}
       <Box
         sx={{
           display: "flex",
@@ -169,11 +242,7 @@ export default function DetalleGastos() {
       >
         <Typography
           variant="h5"
-          sx={{
-            fontWeight: 600,
-            flex: 1, // Toma todo el espacio disponible
-            pr: { md: 2 }, // Padding derecho en PC para que no pegue con las tarjetas
-          }}
+          sx={{ fontWeight: 600, flex: 1, pr: { md: 2 } }}
         >
           Gastos: {motivoViatico || `Viático #${id}`}
         </Typography>
@@ -184,11 +253,10 @@ export default function DetalleGastos() {
             flexDirection: "row",
             alignItems: "center",
             gap: 2,
-            flexShrink: 0, // ¡Esto evita que el bloque derecho se aplaste!
-            flexWrap: { xs: "wrap", sm: "nowrap" }, // En móviles muy pequeños permite que se acomoden
+            flexShrink: 0,
+            flexWrap: { xs: "wrap", sm: "nowrap" },
           }}
         >
-          {/* CUADRO AZUL: Presupuesto Real */}
           <Card
             variant="outlined"
             sx={{ minWidth: 140, bgcolor: "background.default" }}
@@ -206,7 +274,6 @@ export default function DetalleGastos() {
             </CardContent>
           </Card>
 
-          {/* CUADRO ROJO: Total Gastado */}
           <Card
             variant="outlined"
             sx={{
@@ -234,22 +301,35 @@ export default function DetalleGastos() {
             </CardContent>
           </Card>
 
-          {/* BOTÓN: Añadir Gasto */}
           <Button
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
-            sx={{ whiteSpace: "nowrap" }} // Mantiene el texto en una sola línea
+            sx={{ whiteSpace: "nowrap" }}
             onClick={() => {
-              console.log("Abrir formulario de gastos");
+              setGastoAEditar(null);
+              setModalAbierto(true);
             }}
           >
             Añadir Gasto
           </Button>
         </Box>
+
+        <IngresarGasto
+          open={modalAbierto}
+          onClose={() => {
+            setModalAbierto(false);
+            setGastoAEditar(null);
+          }}
+          gastoAEditar={gastoAEditar}
+          rol={ROL_ACTUAL}
+          idViatico={id || ""}
+          onGuardado={() => {
+            window.location.reload();
+          }}
+        />
       </Box>
 
-      {/* TABLA DE GASTOS */}
       <Paper sx={{ height: 400, width: "100%" }}>
         <DataGrid
           rows={gastos}

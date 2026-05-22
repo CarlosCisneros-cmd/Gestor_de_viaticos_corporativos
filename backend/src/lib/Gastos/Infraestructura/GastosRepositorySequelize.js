@@ -105,11 +105,13 @@ class GastosRepositorySequelize {
   }
 
   // Operación: ACTUALIZAR
+  // Operación: ACTUALIZAR
   async update(id, gastoData) {
     const [affectedCount] = await GastosModel.update(
       {
         id_categoria: gastoData.id_categoria,
         monto: gastoData.monto,
+        fecha_gasto: gastoData.fecha_gasto, // <-- ESTA LÍNEA FALTABA
         descripcion: gastoData.descripcion,
         foto_comprobante: gastoData.foto_comprobante,
         estado_gasto: gastoData.estado_gasto,

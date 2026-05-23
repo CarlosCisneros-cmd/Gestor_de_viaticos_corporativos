@@ -5,23 +5,23 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext"; // Importamos el hook de auth
+import { useAuth } from "../../context/AuthContext";
 
 // Iconos existentes
 import FlightTakeoffRoundedIcon from "@mui/icons-material/FlightTakeoffRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
-import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
-import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 
-// Iconos nuevos para el administrador
+// Iconos para el administrador
 import PersonAddRoundedIcon from "@mui/icons-material/PersonAddRounded";
 import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
+import BusinessIcon from "@mui/icons-material/Business";
+import CategoryIcon from "@mui/icons-material/Category";
 
 export default function MenuContenido() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth(); // Obtenemos el usuario del contexto
+  const { user } = useAuth();
 
   // Definimos los menús según el rol
   const isAdmin = user?.rol === "Administrador";
@@ -39,9 +39,14 @@ export default function MenuContenido() {
           path: "/admin/crear-usuario",
         },
         {
-          text: "Estadísticas",
-          icon: <BarChartRoundedIcon />,
-          path: "/admin/estadisticas",
+          text: "Crear Departamento",
+          icon: <BusinessIcon />,
+          path: "/admin/crear-departamento",
+        },
+        {
+          text: "Crear Categoría",
+          icon: <CategoryIcon />,
+          path: "/admin/crear-categoria",
         },
       ]
     : [
@@ -62,10 +67,16 @@ export default function MenuContenido() {
         },
       ];
 
-  const secondaryListItems = [
-    { text: "Configuración", icon: <SettingsRoundedIcon />, path: "/config" },
-    { text: "Acerca de", icon: <InfoRoundedIcon />, path: "/about" },
-  ];
+  // El menú inferior ahora solo contiene Estadísticas y solo se muestra al Admin
+  const secondaryListItems = isAdmin
+    ? [
+        {
+          text: "Estadísticas",
+          icon: <BarChartRoundedIcon />,
+          path: "/admin/estadisticas",
+        },
+      ]
+    : [];
 
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: "space-between" }}>
@@ -83,19 +94,22 @@ export default function MenuContenido() {
         ))}
       </List>
 
-      <List dense>
-        {secondaryListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => navigate(item.path)}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      {/* Renderizamos la lista secundaria solo si hay elementos (ej. para el Admin) */}
+      {secondaryListItems.length > 0 && (
+        <List dense>
+          {secondaryListItems.map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                selected={location.pathname === item.path}
+                onClick={() => navigate(item.path)}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      )}
     </Stack>
   );
 }

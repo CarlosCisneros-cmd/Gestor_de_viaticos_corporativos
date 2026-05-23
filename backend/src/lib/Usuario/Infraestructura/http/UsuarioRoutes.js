@@ -6,6 +6,9 @@ const router = express.Router();
  * Recibe el controlador inyectado desde el index.js del módulo
  */
 module.exports = (controller) => {
+  // 👇 NUEVA RUTA PARA AUTENTICACIÓN (POST /api/usuarios/login)
+  router.post("/login", controller.login);
+
   // Actividad 2: Operación CREAR (POST)
   router.post("/", controller.crear);
 
@@ -17,7 +20,8 @@ module.exports = (controller) => {
 
   // Actividad 2: Operación ELIMINAR (DELETE)
   router.delete("/:id", controller.eliminar);
-  //                                   (EDIT)
+
+  // Operación ACTUALIZAR (PUT)
   router.put("/:id", controller.actualizar); 
 
   return router;

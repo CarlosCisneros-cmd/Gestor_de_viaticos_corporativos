@@ -44,7 +44,10 @@ export default function IngresarGasto({
 
   const [categorias, setCategorias] = useState<any[]>([]);
 
-  const isEmpleado = rol === "empleado";
+  //  SOLUCIÓN BLINDADA PARA EL ROL: Pasamos a minúsculas y comparamos de forma segura
+  const userRol = rol?.toLowerCase() || "usuario";
+  // Si NO es administrador, significa que es un empleado común ingresando o editando sus gastos
+  const isEmpleado = userRol !== "administrador";
   const esEdicion = Boolean(gastoAEditar);
 
   useEffect(() => {
@@ -69,7 +72,6 @@ export default function IngresarGasto({
         descripcion: gastoAEditar.descripcion || "",
         monto: gastoAEditar.monto?.toString() || "",
         observacion: gastoAEditar.observacion || "",
-        // SOLUCIÓN ZONA HORARIA AL EDITAR:
         fecha: gastoAEditar.fecha_gasto
           ? gastoAEditar.fecha_gasto.toString().split("T")[0]
           : "",
@@ -104,17 +106,19 @@ export default function IngresarGasto({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // SOLUCIÓN EDICIÓN: Aseguramos que los tipos de datos sean exactos
     const bodyData = {
-      id_gasto: esEdicion ? gastoAEditar.id_gasto : undefined, // Añadido por seguridad
+      id_gasto: esEdicion ? gastoAEditar.id_gasto : undefined,
       descripcion: formData.descripcion,
       monto: Number(formData.monto),
       fecha_gasto: formData.fecha,
       estado_gasto: formData.estado,
       observacion: formData.observacion,
-      id_viatico: Number(idViatico), // Aseguramos que sea número
+      id_viatico: Number(idViatico),
       id_categoria: Number(formData.id_categoria),
     };
+
+  // Imprimimos en consola para que verifiques qué estás mandando al backend en tus pruebas
+  console.log("Enviando bodyData:", bodyData);
 
     try {
       const url = esEdicion
@@ -150,7 +154,7 @@ export default function IngresarGasto({
         {esEdicion
           ? isEmpleado
             ? "Editar Gasto"
-            : "Asignar Estado"
+            : "Asignar Estado (Modo Administrador)"
           : "Añadir Nuevo Gasto"}
       </DialogTitle>
 
@@ -173,7 +177,7 @@ export default function IngresarGasto({
                 value={formData.id_categoria}
                 onChange={handleChange}
                 required
-                disabled={!isEmpleado}
+                disabled={!isEmpleado} // Se bloquea si es Administrador
                 slotProps={{ inputLabel: { shrink: true } }}
               >
                 {categorias.map((cat) => (
@@ -192,7 +196,7 @@ export default function IngresarGasto({
                 rows={2}
                 onChange={handleChange}
                 required
-                disabled={!isEmpleado}
+                disabled={!isEmpleado} // Se bloquea si es Administrador
                 slotProps={{
                   inputLabel: { shrink: true },
                 }}
@@ -205,6 +209,7 @@ export default function IngresarGasto({
                   },
                 }}
               />
+              
               <TextField
                 fullWidth
                 label="Monto"
@@ -213,7 +218,7 @@ export default function IngresarGasto({
                 value={formData.monto}
                 onChange={handleChange}
                 required
-                disabled={!isEmpleado}
+                disabled={!isEmpleado} // Se bloquea si es Administrador
                 placeholder="0.00"
                 slotProps={{
                   inputLabel: { shrink: true },
@@ -225,6 +230,7 @@ export default function IngresarGasto({
                 }}
               />
 
+              {/* El botón de subir archivo solo aparece si quien opera es el empleado */}
               {isEmpleado && (
                 <Box
                   sx={{
@@ -276,7 +282,7 @@ export default function IngresarGasto({
                 value={formData.fecha}
                 onChange={handleChange}
                 required
-                disabled={!isEmpleado}
+                disabled={!isEmpleado} // Se bloquea si es Administrador
                 slotProps={{ inputLabel: { shrink: true } }}
               />
 
@@ -297,12 +303,12 @@ export default function IngresarGasto({
                   name="estado"
                   value={formData.estado}
                   onChange={handleChange}
-                  disabled={isEmpleado}
+                  disabled={isEmpleado} // Se DESBLOQUEA si es Administrador
                   slotProps={{ inputLabel: { shrink: true } }}
                 >
                   <MenuItem value="Pendiente">Pendiente</MenuItem>
                   <MenuItem value="Aceptado">Aceptado</MenuItem>
-                  <MenuItem value="Observado">Observado</MenuItem>
+                  <MenuItem value="Rechazado">Rechazado</MenuItem>
                 </TextField>
 
                 <TextField
@@ -314,11 +320,11 @@ export default function IngresarGasto({
                   multiline
                   rows={2}
                   maxRows={2}
-                  disabled={isEmpleado}
+                  disabled={isEmpleado} // Se DESBLOQUEA si es Administrador
                   placeholder={
                     isEmpleado
-                      ? "Sin observaciones"
-                      : "Escribe una observación si es necesario..."
+                      ? "Sin observaciones de administración"
+                      : "Escribe el motivo del cambio de estado..."
                   }
                   slotProps={{ inputLabel: { shrink: true } }}
                   sx={{
@@ -350,7 +356,11 @@ export default function IngresarGasto({
             color="primary"
             startIcon={<CheckIcon />}
           >
-            {esEdicion ? "Guardar Cambios" : "Guardar Gasto"}
+            {esEdicion 
+              ? isEmpleado 
+                ? "Guardar Cambios" 
+                : "Confirmar Evaluación" 
+              : "Guardar Gasto"}
           </Button>
         </DialogActions>
       </form>

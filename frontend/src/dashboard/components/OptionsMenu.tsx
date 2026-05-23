@@ -15,15 +15,29 @@ const MenuItem = styled(MuiMenuItem)({
   margin: '2px 0',
 });
 
-export default function OptionsMenu() {
+// 👇 DEFINIMOS EL TIPO DE LA PROPIEDAD QUE RECIBIREMOS DESDE EL MENÚ LATERAL
+interface OptionsMenuProps {
+  onLogout: () => void;
+}
+
+export default function OptionsMenu({ onLogout }: OptionsMenuProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  // 👇 MANEJADOR QUE CIERRA EL MENÚ VISUAL Y DISPARA EL CIERRE DE SESIÓN RECTO AL LOGIN
+  const handleLogoutClick = () => {
+    handleClose(); // Cierra el menú desplegable
+    onLogout();    // Ejecuta la expulsión y limpia localStorage
+  };
+
   return (
     <React.Fragment>
       <MenuButton
@@ -59,8 +73,10 @@ export default function OptionsMenu() {
         <MenuItem onClick={handleClose}>Add another account</MenuItem>
         <MenuItem onClick={handleClose}>Settings</MenuItem>
         <Divider />
+        
+        {/* 👇 CAMBIAMOS EL ONCLICK DE ESTE MENUITEM PARA VINCULARLO AL LOGOUT */}
         <MenuItem
-          onClick={handleClose}
+          onClick={handleLogoutClick}
           sx={{
             [`& .${listItemIconClasses.root}`]: {
               ml: 'auto',

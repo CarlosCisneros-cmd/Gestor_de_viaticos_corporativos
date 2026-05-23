@@ -26,14 +26,21 @@ interface Gasto {
   monto: number;
   fecha_gasto: string;
   descripcion: string;
-  estado_gasto: "Pendiente" | "Aceptado" | "Observado";
-  id_categoria?: number; // Añadido por si acaso
+  estado_gasto: "Pendiente" | "Aceptado" | "Re";
+  id_categoria?: number;
 }
 
 export default function DetalleGastos() {
   const [modalAbierto, setModalAbierto] = useState(false);
-  const ROL_ACTUAL = "empleado";
   const [gastoAEditar, setGastoAEditar] = useState<Gasto | null>(null);
+
+  // 🔐 ADAPTACIÓN DE LOG IN: Recuperamos el rol real del almacenamiento o estado global.
+  // Si usas un useAuth(), puedes cambiar esto por: const { user } = useAuth(); y usar user.rol
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const ROL_ACTUAL = storedUser.rol || "Usuario"; // Por defecto "Usuario" si no encuentra nada
+
+  // Evaluamos de forma segura pasando a minúsculas
+  const isEmpleado = ROL_ACTUAL.toLowerCase() !== "administrador";
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -122,8 +129,7 @@ export default function DetalleGastos() {
         flex: 0.8,
         valueFormatter: (value: any) => {
           if (!value) return "";
-          // SOLUCIÓN ZONA HORARIA: Cortamos el texto original para no perder el día
-          const datePart = String(value).split("T")[0]; // "2026-05-17"
+          const datePart = String(value).split("T")[0];
           const [year, month, day] = datePart.split("-");
           return `${day}/${month}/${year}`;
         },
@@ -133,11 +139,11 @@ export default function DetalleGastos() {
         headerName: "Estado",
         flex: 0.8,
         renderCell: (params: GridRenderCellParams) => {
-          const estado = params.value as "Pendiente" | "Aceptado" | "Observado";
+          const estado = params.value as "Pendiente" | "Aceptado" | "Rechazado";
           const color =
             estado === "Aceptado"
               ? "success"
-              : estado === "Observado"
+              : estado === "Rechazado"
                 ? "error"
                 : "warning";
           return (
@@ -156,11 +162,10 @@ export default function DetalleGastos() {
         flex: 1,
         sortable: false,
         renderCell: (params: GridRenderCellParams) => {
-          const isEmpleado = ROL_ACTUAL === "empleado";
-
           return (
             <Box sx={{ display: "flex", gap: 1 }}>
-              <Tooltip title={isEmpleado ? "Editar" : "Asignar estado"}>
+              {/* Botón dinámico: Cambia de icono y tooltip según el rol */}
+              <Tooltip title={isEmpleado ? "Editar Gasto" : "Asignar Estado (Admin)"}>
                 <IconButton
                   color="primary"
                   onClick={() => handleEditarGasto(params.row)}
@@ -169,6 +174,7 @@ export default function DetalleGastos() {
                 </IconButton>
               </Tooltip>
 
+              {/* Botón Eliminar: SOLO se renderiza en la interfaz del empleado */}
               {isEmpleado && (
                 <Tooltip title="Eliminar">
                   <IconButton
@@ -184,7 +190,7 @@ export default function DetalleGastos() {
         },
       },
     ],
-    [],
+    [isEmpleado], // Se recalcula si cambia el rol
   );
 
   useEffect(() => {
@@ -301,20 +307,24 @@ export default function DetalleGastos() {
             </CardContent>
           </Card>
 
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            sx={{ whiteSpace: "nowrap" }}
-            onClick={() => {
-              setGastoAEditar(null);
-              setModalAbierto(true);
-            }}
-          >
-            Añadir Gasto
-          </Button>
+          {/* 🔘 BOTÓN CREAR GASTO: Solo se muestra si es Empleado/Usuario */}
+          {isEmpleado && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              sx={{ whiteSpace: "nowrap" }}
+              onClick={() => {
+                setGastoAEditar(null);
+                setModalAbierto(true);
+              }}
+            >
+              Añadir Gasto
+            </Button>
+          )}
         </Box>
 
+        {/* 📦 INVOCACIÓN AL MODAL CORREGIDO: Le inyectamos el ROL_ACTUAL reactivo */}
         <IngresarGasto
           open={modalAbierto}
           onClose={() => {
@@ -325,6 +335,7 @@ export default function DetalleGastos() {
           rol={ROL_ACTUAL}
           idViatico={id || ""}
           onGuardado={() => {
+            // Recarga óptima para refrescar la grilla de DataGrid tras guardar o evaluar
             window.location.reload();
           }}
         />

@@ -29,7 +29,7 @@ const GastosModel = sequelize.define("Gasto", {
     allowNull: true,
   },
   estado_gasto: {
-    type: DataTypes.ENUM('Pendiente', 'Aceptado', 'Observado'),
+    type: DataTypes.ENUM('Pendiente', 'Aceptado', 'Rechazado'),
     allowNull: false,
     defaultValue: 'Pendiente',
   },

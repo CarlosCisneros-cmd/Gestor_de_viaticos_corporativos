@@ -9,6 +9,10 @@ import MenuContenido from "./MenuContenido";
 import OptionsMenu from "./OptionsMenu";
 import WorkHistoryRoundedIcon from "@mui/icons-material/WorkHistoryRounded";
 
+// 👇 IMPORTAMOS LOS HOOKS DE AUTENTICACIÓN Y NAVEGACIÓN
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 const drawerWidth = 240;
 
 const Drawer = styled(MuiDrawer)({
@@ -22,6 +26,16 @@ const Drawer = styled(MuiDrawer)({
 });
 
 export default function SideMenu() {
+  // 👇 EXTRAEMOS EL USUARIO LOGUEADO Y LA FUNCIÓN DE LOGOUT
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // 👇 FUNCIÓN PARA LIMPIAR LA SESIÓN Y EXPULSAR AL LOGIN
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <Drawer variant="permanent" sx={{ display: { xs: "none", md: "block" } }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, p: 2.5 }}>
@@ -45,7 +59,6 @@ export default function SideMenu() {
           flexDirection: "column",
         }}
       >
-        {/* Ya no pasamos props de estado */}
         <MenuContenido />
       </Box>
 
@@ -59,23 +72,32 @@ export default function SideMenu() {
           borderColor: "divider",
         }}
       >
+        {/* Avatar Dinámico: Muestra la inicial en mayúscula si no hay imagen real */}
         <Avatar
-          alt="Jose Martinez"
+          alt={user?.nombre || "Usuario"}
           src="/static/images/avatar/7.jpg"
-          sx={{ width: 36, height: 36 }}
-        />
+          sx={{ width: 36, height: 36, bgcolor: "primary.main", fontSize: "0.9rem", fontWeight: "bold" }}
+        >
+          {user?.nombre ? user.nombre.charAt(0).toUpperCase() : "U"}
+        </Avatar>
+        
         <Box sx={{ mr: "auto" }}>
+          {/* 👇 NOMBRE DINÁMICO DESDE TU BASE DE DATOS */}
           <Typography
             variant="body2"
             sx={{ fontWeight: 500, lineHeight: "16px" }}
           >
-            Jose Martinez
+            {user?.nombre || "Cargando..."}
           </Typography>
+          
+          {/* 👇 CORREO DINÁMICO DESDE TU BASE DE DATOS */}
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            empleado@email.com
+            {user?.correo || "correo@ejemplo.com"}
           </Typography>
         </Box>
-        <OptionsMenu />
+
+        {/* 👇 LE PASAMOS LA FUNCIÓN DE LOGOUT AL SUBCOMPONENTE DE MENÚ */}
+        <OptionsMenu onLogout={handleLogout} />
       </Stack>
     </Drawer>
   );

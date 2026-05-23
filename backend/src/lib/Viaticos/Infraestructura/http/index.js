@@ -9,6 +9,7 @@ const ActualizarViatico = require("../../Aplicacion/ActualizarViatico");
 const ListarViaticos = require("../../Aplicacion/ListarViaticos");
 const ListarPorId = require("../../Aplicacion/ListarPorId");
 const EliminarViatico = require("../../Aplicacion/EliminarViatico");
+const ListarViaticosPorUsuario = require("../../Aplicacion/ListarViaticosPorUsuario");
 
 module.exports = function registerViaticoModule(app) {
   const repo = new ViaticoRepositorySequelize();
@@ -19,6 +20,7 @@ module.exports = function registerViaticoModule(app) {
     ListarViaticos: new ListarViaticos(repo),
     ListarPorId: new ListarPorId(repo),
     EliminarViatico: new EliminarViatico(repo),
+    ListarViaticosPorUsuario: new ListarViaticosPorUsuario(repo),
   });
 
   app.use("/api/viaticos", ViaticoRoutes(controller));

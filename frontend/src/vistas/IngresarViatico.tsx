@@ -13,8 +13,11 @@ import {
 // Iconos
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded";
+import { useAuth } from "../context/AuthContext";
 
 export default function IngresarViatico() {
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     descripcion_Viatico: "",
     fecha_inicio: "",
@@ -33,22 +36,30 @@ export default function IngresarViatico() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 3. Validación de seguridad básica
+    if (!user || !user.id_Usuario) {
+      alert(
+        "Error: No se pudo identificar al usuario. Por favor, inicia sesión de nuevo.",
+      );
+      return;
+    }
+
     try {
-      // Ajusta el puerto según donde corra el servidor express
-      const response = await fetch("http://localhost:3799/api/viaticos", {
+      const response = await fetch("http://localhost:3977/api/viaticos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Si tu backend requiere autenticación, aquí deberías enviar el token
+          // "Authorization": `Bearer ${user.token}`
         },
         body: JSON.stringify({
           descripcion_Viatico: formData.descripcion_Viatico,
           fecha_inicio: formData.fecha_inicio,
           fecha_fin: formData.fecha_fin,
           presupuesto_asignado: parseFloat(formData.presupuesto_asignado),
-          id_usuario: 7, // <-- Obligatorio por tu modelo (quemado temporalmente)
+          id_usuario: user.id_Usuario, // id dinamico
         }),
       });
-
       if (response.ok) {
         alert("¡Solicitud de viático enviada correctamente!");
         setFormData({

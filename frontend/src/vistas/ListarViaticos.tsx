@@ -7,11 +7,12 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "../context/AuthContext"; // Ajusta la ruta si es necesario
 export default function ListarViaticos() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); // 1. Inicializa el hook aquí
+  const { user } = useAuth();
 
   const columns: GridColDef[] = useMemo(
     () => [
@@ -104,9 +105,18 @@ export default function ListarViaticos() {
 
   useEffect(() => {
     const cargarViaticos = async () => {
+      if (!user) return; // Si no hay usuario, no hacemos nada
+
       try {
-        // Asegúrate de que esta URL apunte al puerto de tu backend Node.js
-        const response = await fetch("http://localhost:3977/api/viaticos");
+        // Si es admin, traemos todos. Si es usuario, traemos los suyos.
+        // OJO: Aquí depende de cómo esté tu backend.
+        // Supongamos que tu backend tiene un endpoint: /api/viaticos/usuario/:id
+        const url =
+          user.rol === "Administrador"
+            ? "http://localhost:3977/api/viaticos"
+            : `http://localhost:3977/api/viaticos/usuario/${user.id_Usuario}`; // <--- VERIFICA ESTO
+
+        const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
           setRows(data);
@@ -117,9 +127,9 @@ export default function ListarViaticos() {
         setLoading(false);
       }
     };
-    cargarViaticos();
-  }, []);
 
+    cargarViaticos();
+  }, [user]); // Agregamos user como dependencia
   return (
     <Box sx={{ width: "100%", mt: 2 }}>
       <Box>

@@ -1,11 +1,19 @@
 class ViaticoController {
   // El constructor recibe los Casos de Uso (Aplicación) de Viáticos
-  constructor({ CrearViatico, ListarViaticos, ListarPorId, EliminarViatico, ActualizarViatico }) {
+  constructor({
+    CrearViatico,
+    ListarViaticos,
+    ListarPorId,
+    EliminarViatico,
+    ActualizarViatico,
+    ListarViaticosPorUsuario,
+  }) {
     this.CrearViatico = CrearViatico;
     this.ListarViaticos = ListarViaticos;
     this.ListarPorId = ListarPorId;
     this.EliminarViatico = EliminarViatico;
     this.ActualizarViatico = ActualizarViatico;
+    this.ListarViaticosPorUsuario = ListarViaticosPorUsuario;
   }
 
   // Actividad 2: Implementar operación CREAR Viático
@@ -32,7 +40,8 @@ class ViaticoController {
   obtenerPorId = async (req, res) => {
     try {
       const viatico = await this.ListarPorId.ejecutar(req.params.id);
-      if (!viatico) return res.status(404).json({ message: "Viático no encontrado" });
+      if (!viatico)
+        return res.status(404).json({ message: "Viático no encontrado" });
       res.json(viatico);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -54,15 +63,25 @@ class ViaticoController {
     try {
       const { id } = req.params;
       const datos = req.body;
-      
+
       const resultado = await this.ActualizarViatico.ejecutar(id, datos);
-      
+
       res.status(200).json({
         message: "Viático actualizado con éxito",
-        data: resultado
+        data: resultado,
       });
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  };
+
+  listarPorUsuario = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const viaticos = await this.ListarViaticosPorUsuario.ejecutar(id);
+      res.json(viaticos);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   };
 }

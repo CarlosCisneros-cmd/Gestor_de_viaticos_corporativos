@@ -17,7 +17,10 @@ module.exports = (controller) => {
   //                                (DELETE)
   router.delete("/:id", controller.eliminar);
   //                                   (EDIT)
-  router.put("/:id", controller.actualizar); 
+  router.put("/:id", controller.actualizar);
+
+  // router.get("/", viaticoController.listar);
+  router.get("/usuario/:id", controller.listarPorUsuario);
 
   return router;
 };

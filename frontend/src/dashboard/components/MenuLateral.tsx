@@ -76,11 +76,17 @@ export default function SideMenu() {
         <Avatar
           alt={user?.nombre || "Usuario"}
           src="/static/images/avatar/7.jpg"
-          sx={{ width: 36, height: 36, bgcolor: "primary.main", fontSize: "0.9rem", fontWeight: "bold" }}
+          sx={{
+            width: 36,
+            height: 36,
+            bgcolor: "primary.main",
+            fontSize: "0.9rem",
+            fontWeight: "bold",
+          }}
         >
           {user?.nombre ? user.nombre.charAt(0).toUpperCase() : "U"}
         </Avatar>
-        
+
         <Box sx={{ mr: "auto" }}>
           {/* 👇 NOMBRE DINÁMICO DESDE TU BASE DE DATOS */}
           <Typography
@@ -89,7 +95,7 @@ export default function SideMenu() {
           >
             {user?.nombre || "Cargando..."}
           </Typography>
-          
+
           {/* 👇 CORREO DINÁMICO DESDE TU BASE DE DATOS */}
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
             {user?.correo || "correo@ejemplo.com"}

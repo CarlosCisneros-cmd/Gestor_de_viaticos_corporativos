@@ -6,6 +6,7 @@ module.exports = function (controller) {
   router.post("/", controller.crear);
   router.get("/", controller.listar);
   router.get("/:id", controller.obtenerPorId);
+  router.put("/:id", controller.actualizar); //  Añadida ruta de actualización
   router.delete("/:id", controller.eliminar);
 
   return router;

@@ -1,8 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const { connection: connectPostgres, sequelize } = require("./Infraestructura/database/Postgres"); 
-const { connection: connectMongo } = require("./Infraestructura/database/Mongo"); // Importamos y renombramos
+const {
+  connection: connectPostgres,
+  sequelize,
+} = require("./Infraestructura/database/Postgres");
+const {
+  connection: connectMongo,
+} = require("./Infraestructura/database/Mongo"); // Importamos y renombramos
 
 // Importación de Módulos existentes
 const registerUserModule = require("./lib/Usuario/Infraestructura/http");
@@ -19,16 +25,15 @@ async function buildApp() {
   try {
     // Conectamos PostgreSQL
     await connectPostgres();
-    await sequelize.sync({ alter: true }); 
+    await sequelize.sync({ alter: true });
     console.log("Tablas sincronizadas correctamente.");
 
     //Llamamos a la función para conectar Mongo
-    await connectMongo(); 
+    await connectMongo();
     console.log("MongoDB conectado correctamente.");
-
   } catch (error) {
     console.error("Error al inicializar la base de datos:", error);
-    process.exit(1); 
+    process.exit(1);
   }
 
   // 2. Middlewares
@@ -39,12 +44,12 @@ async function buildApp() {
   // 3. Registro de Módulos (Inyección de Dependencias)
   registerUserModule(app);
   registerDepartamentosModule(app);
-  
+
   registerViaticoModule(app);
-  registerCategoriaModule(app); 
+  registerCategoriaModule(app);
   registerGastoModule(app);
   registerEvidenciasModule(app);
-  
+
   // 4. Manejo de rutas no encontradas (404)
   app.use((req, res) => {
     res.status(404).json({ message: "Ruta no encontrada en el servidor ORM" });

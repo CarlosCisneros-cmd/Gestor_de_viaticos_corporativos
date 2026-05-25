@@ -35,7 +35,7 @@ export default function IngresarGasto({
   const [formData, setFormData] = useState({
     descripcion: "",
     monto: "",
-    observacion: "",
+    observaciones: "",
     fecha: "",
     estado: "Pendiente",
     id_categoria: "",
@@ -71,7 +71,7 @@ export default function IngresarGasto({
       setFormData({
         descripcion: gastoAEditar.descripcion || "",
         monto: gastoAEditar.monto?.toString() || "",
-        observacion: gastoAEditar.observacion || "",
+        observaciones: gastoAEditar.observaciones || "",
         fecha: gastoAEditar.fecha_gasto
           ? gastoAEditar.fecha_gasto.toString().split("T")[0]
           : "",
@@ -83,7 +83,7 @@ export default function IngresarGasto({
       setFormData({
         descripcion: "",
         monto: "",
-        observacion: "",
+        observaciones: "",
         fecha: "",
         estado: "Pendiente",
         id_categoria: "",
@@ -112,13 +112,13 @@ export default function IngresarGasto({
       monto: Number(formData.monto),
       fecha_gasto: formData.fecha,
       estado_gasto: formData.estado,
-      observacion: formData.observacion,
+      observaciones: formData.observaciones,
       id_viatico: Number(idViatico),
       id_categoria: Number(formData.id_categoria),
     };
 
-  // Imprimimos en consola para que verifiques qué estás mandando al backend en tus pruebas
-  console.log("Enviando bodyData:", bodyData);
+    // Imprimimos en consola para que verifiques qué estás mandando al backend en tus pruebas
+    console.log("Enviando bodyData:", bodyData);
 
     try {
       const url = esEdicion
@@ -209,7 +209,7 @@ export default function IngresarGasto({
                   },
                 }}
               />
-              
+
               <TextField
                 fullWidth
                 label="Monto"
@@ -314,8 +314,8 @@ export default function IngresarGasto({
                 <TextField
                   fullWidth
                   label="Observaciones"
-                  name="observacion"
-                  value={formData.observacion}
+                  name="observaciones"
+                  value={formData.observaciones}
                   onChange={handleChange}
                   multiline
                   rows={2}
@@ -356,10 +356,10 @@ export default function IngresarGasto({
             color="primary"
             startIcon={<CheckIcon />}
           >
-            {esEdicion 
-              ? isEmpleado 
-                ? "Guardar Cambios" 
-                : "Confirmar Evaluación" 
+            {esEdicion
+              ? isEmpleado
+                ? "Guardar Cambios"
+                : "Confirmar Evaluación"
               : "Guardar Gasto"}
           </Button>
         </DialogActions>

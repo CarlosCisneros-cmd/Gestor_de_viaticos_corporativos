@@ -6,7 +6,7 @@ class Gastos {
     monto,
     fecha_gasto,
     descripcion,
-    observaciones, // ✨ Cambiado de foto_comprobante a observaciones
+    observaciones,
     estado_gasto,
   }) {
     // Validaciones de negocio (Capa de Dominio)
@@ -23,11 +23,10 @@ class Gastos {
     this.id_viatico = id_viatico;
     this.id_categoria = id_categoria;
     this.monto = monto;
-    this.fecha_gasto = fecha_gasto || new Date(); 
+    this.fecha_gasto = fecha_gasto || new Date();
     this.descripcion = descripcion.trim();
-    
-    // ✨ Se almacena como texto plano. Si viene vacío, se guarda como string vacío.
-    this.observaciones = observaciones ? observaciones.trim() : ""; 
+
+    this.observaciones = observaciones ? observaciones.trim() : "";
 
     // Estado por defecto: 'Pendiente'
     this.estado_gasto = estado_gasto || "Pendiente";

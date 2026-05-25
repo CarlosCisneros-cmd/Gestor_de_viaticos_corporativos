@@ -1,5 +1,14 @@
 class Usuario {
-  constructor({ id_Usuario, nombre, correo, contraseña, rol, cedula, telefono, id_departamento }) {
+  constructor({
+    id_Usuario,
+    nombre,
+    correo,
+    contraseña,
+    rol,
+    cedula,
+    telefono,
+    id_departamento,
+  }) {
     if (!nombre) throw new Error("nombre requerido");
     if (!correo) throw new Error("correo requerido");
     if (!contraseña) throw new Error("contraseña requerido");
@@ -22,7 +31,7 @@ class Usuario {
     this.rol = rol;
     this.cedula = cedula.trim();
     this.telefono = telefono.trim();
-    this.id_departamento = id_departamento; 
+    this.id_departamento = id_departamento;
   }
 }
 

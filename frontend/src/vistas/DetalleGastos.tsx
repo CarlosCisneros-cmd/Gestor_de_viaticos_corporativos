@@ -26,7 +26,7 @@ interface Gasto {
   monto: number;
   fecha_gasto: string;
   descripcion: string;
-  estado_gasto: "Pendiente" | "Aceptado" | "Re";
+  estado_gasto: "Pendiente" | "Aceptado" | "Rechazado";
   id_categoria?: number;
 }
 
@@ -55,6 +55,10 @@ export default function DetalleGastos() {
     (sum, gasto) => sum + Number(gasto.monto),
     0,
   );
+  const totalAceptado = gastos
+    .filter((gasto) => gasto.estado_gasto === "Aceptado")
+    .reduce((sum, gasto) => sum + Number(gasto.monto), 0);
+
   const isOverBudget = totalGastos > presupuesto;
 
   const handleEditarGasto = (fila: Gasto) => {
@@ -165,7 +169,9 @@ export default function DetalleGastos() {
           return (
             <Box sx={{ display: "flex", gap: 1 }}>
               {/* Botón dinámico: Cambia de icono y tooltip según el rol */}
-              <Tooltip title={isEmpleado ? "Editar Gasto" : "Asignar Estado (Admin)"}>
+              <Tooltip
+                title={isEmpleado ? "Editar Gasto" : "Asignar Estado (Admin)"}
+              >
                 <IconButton
                   color="primary"
                   onClick={() => handleEditarGasto(params.row)}
@@ -303,6 +309,29 @@ export default function DetalleGastos() {
                 }}
               >
                 ${totalGastos.toFixed(2)}
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card
+            variant="outlined"
+            sx={{
+              minWidth: 140,
+              bgcolor: "background.default",
+              borderColor: "success.light", // Borde verdecito
+            }}
+          >
+            <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
+              <Typography
+                variant="body2"
+                sx={{ color: "success.main" }} // Texto verdecito
+              >
+                Total Aceptado
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", color: "success.main" }}
+              >
+                ${totalAceptado.toFixed(2)}
               </Typography>
             </CardContent>
           </Card>

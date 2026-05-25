@@ -1,37 +1,31 @@
 class Usuario {
-  constructor({
-    id_Usuario,
-    nombre,
-    correo,
-    contraseña,
-    rol,
-    cedula,
-    telefono,
-    id_departamento,
-  }) {
-    if (!nombre) throw new Error("nombre requerido");
-    if (!correo) throw new Error("correo requerido");
-    if (!contraseña) throw new Error("contraseña requerido");
-    if (!rol) throw new Error("rol requerido");
-    if (!cedula) throw new Error("cedula requerida");
-    if (!telefono) throw new Error("telefono requerido");
+  constructor(data) {
+    if (!data.nombre) throw new Error("nombre requerido");
+    if (!data.correo) throw new Error("correo requerido");
+    if (!data.contraseña) throw new Error("contraseña requerido");
+    if (!data.rol) throw new Error("rol requerido");
+    if (!data.cedula) throw new Error("cedula requerida");
+    if (!data.telefono) throw new Error("telefono requerido");
 
-    // Validaciones de negocio para longitudes (12 a 15 caracteres)
-    if (cedula.trim().length < 12 || cedula.trim().length > 15) {
-      throw new Error("La cédula debe contener entre 12 y 15 caracteres");
+    const cedulaStr = String(data.cedula).trim();
+    const telefonoStr = String(data.telefono).trim();
+
+    // Validaciones de negocio para longitudes exactas de Ecuador
+    if (cedulaStr.length < 10 || cedulaStr.length > 12) {
+      throw new Error("La cédula debe contener entre 10 y 12 caracteres");
     }
-    if (telefono.trim().length < 12 || telefono.trim().length > 15) {
-      throw new Error("El teléfono debe contener entre 12 y 15 caracteres");
+    if (telefonoStr.length < 10 || telefonoStr.length > 12) {
+      throw new Error("El teléfono debe contener entre 10 y 12 caracteres");
     }
 
-    this.id_Usuario = id_Usuario;
-    this.nombre = nombre.trim();
-    this.correo = correo.trim();
-    this.contraseña = contraseña;
-    this.rol = rol;
-    this.cedula = cedula.trim();
-    this.telefono = telefono.trim();
-    this.id_departamento = id_departamento;
+    this.id_Usuario = data.id_Usuario;
+    this.nombre = String(data.nombre).trim();
+    this.correo = String(data.correo).trim();
+    this.contraseña = data.contraseña; 
+    this.rol = data.rol;
+    this.cedula = cedulaStr;
+    this.telefono = telefonoStr;
+    this.id_departamento = data.id_departamento;
   }
 }
 

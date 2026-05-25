@@ -6,7 +6,8 @@ class LoginController {
     this.loginUsuario = new LoginUsuario(usuarioRepository);
   }
 
-  async login(req, res) {
+  // 👇 CORREGIDO A ARROW FUNCTION PARA NO PERDER EL CONTEXTO EN LAS RUTAS DE EXPRESS
+  login = async (req, res) => {
     const { correo, contraseña } = req.body;
 
     try {
@@ -23,7 +24,7 @@ class LoginController {
       // Si las credenciales fallan, respondemos con 401 Unauthorized
       return res.status(401).json({ error: error.message });
     }
-  }
+  };
 }
 
 module.exports = LoginController;

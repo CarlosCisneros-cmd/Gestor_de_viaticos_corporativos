@@ -16,6 +16,7 @@ import DetalleGastos from "./vistas/DetalleGastos";
 import Login from "./vistas/Login"; 
 import Departamentos from "./vistas/Departamentos"; 
 import Categorias from "./vistas/CrearCategoria"; 
+import Usuarios from "./vistas/Usuarios"; // 👈 Añadido: Importación de tu vista de Usuarios
 
 export default function App(props: { disableCustomTheme?: boolean }) {
   return (
@@ -73,8 +74,11 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                           {/* Ruta de Departamentos */}
                           <Route path="/admin/crear-departamento" element={<Departamentos />} />
 
-                          {/* 🛡️ MODIFICACIÓN 2: Añadimos la sub-ruta exacta para Categorías */}
+                          {/* Ruta de Categorías */}
                           <Route path="/admin/crear-categoria" element={<Categorias />} />
+
+                          {/* 👥 Ruta de Usuarios (Mismo patrón que departamentos y categorías) */}
+                          <Route path="/admin/crear-usuario" element={<Usuarios />} />
 
                           {/* Captura cualquier error de sub-ruta interna */}
                           <Route path="*" element={<Navigate to="/viaticos" replace />} />

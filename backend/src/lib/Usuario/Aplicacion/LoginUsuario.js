@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs'); // 👇 IMPORTAMOS BCRYPT
+
 class LoginUsuario {
   constructor(usuarioRepository) {
     this.usuarioRepository = usuarioRepository;
@@ -11,8 +13,10 @@ class LoginUsuario {
       throw new Error("Credenciales incorrectas");
     }
 
-    // 2. Verificar la contraseña en texto plano
-    if (usuario.contraseña !== contraseña) {
+    // 2. 🔥 CORREGIDO: Verificar la contraseña usando comparación criptográfica de bcrypt
+    const esContraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña);
+    
+    if (!esContraseñaValida) {
       throw new Error("Credenciales incorrectas");
     }
 

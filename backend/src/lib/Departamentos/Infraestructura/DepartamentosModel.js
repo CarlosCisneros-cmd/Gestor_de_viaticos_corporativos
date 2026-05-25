@@ -1,20 +1,11 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../../../Infraestructura/database/Postgres");
-const UsuarioModel = require("../../Usuario/Infraestructura/UsuarioModel");
+// Asegúrate que esta ruta sea correcta para tu estructura de carpetas
+const UsuarioModel = require("../../Usuario/Infraestructura/UsuarioModel"); 
 
 const DepartamentosModel = sequelize.define("Departamentos", {
-  id_departamento: { // Usando tu nombre exacto
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  nombre_departamento: { // Usando tu nombre exacto
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    },
-  }
+  id_departamento: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  nombre_departamento: { type: DataTypes.STRING, allowNull: false, validate: { notEmpty: true } }
 }, {
   tableName: "departamentos",
   timestamps: true,
@@ -22,7 +13,7 @@ const DepartamentosModel = sequelize.define("Departamentos", {
 
 // DEFINICIÓN DE LA RELACIÓN
 DepartamentosModel.hasMany(UsuarioModel, {
-  foreignKey: "id_departamento", // Llave que se creará en 'usuarios'
+  foreignKey: "id_departamento",
   sourceKey: "id_departamento"
 });
 

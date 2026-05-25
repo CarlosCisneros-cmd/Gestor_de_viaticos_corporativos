@@ -6,6 +6,10 @@ class IUsuarioRepositorio {
   async findById(id) { throw new Error("Método no implementado"); }
   async update(id, usuario) { throw new Error("Método no implementado"); }
   async delete(id) { throw new Error("Método no implementado"); }
+  
+  // 👇 NUEVOS MÉTODOS REQUERIDOS POR EL CONTRATO DE DOMINIO
+  async findByEmail(correo) { throw new Error("Método no implementado"); }
+  async findByCedula(cedula) { throw new Error("Método no implementado"); }
 }
 
 module.exports = IUsuarioRepositorio;

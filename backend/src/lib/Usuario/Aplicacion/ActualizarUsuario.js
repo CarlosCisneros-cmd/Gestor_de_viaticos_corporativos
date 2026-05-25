@@ -3,31 +3,24 @@ class ActualizarUsuario {
     this.IUsuarioRepositorio = IUsuarioRepositorio;
   }
 
-  async ejecutar(id, datosNuevos) {
-
-    //validacion
-    if (datosNuevos.correo) {
-      const usuarioExistente = await this.IUsuarioRepositorio.findByEmail(datosNuevos.correo);
-
-      // Si existe un usuario con ese correo Y no es el mismo que estamos editando
-      if (usuarioExistente && usuarioExistente.id_Usuario !== parseInt(id)) {
-        const error = new Error("El correo electrónico ya está siendo utilizado por otro usuario.");
-        error.statusCode = 400;
-        throw error;
+  async ejecutar(id, data) {
+    // 1. Si se intenta actualizar el correo, validar que no pertenezca a otro usuario
+    if (data.correo) {
+      const userEmail = await this.IUsuarioRepositorio.findByEmail(data.correo);
+      if (userEmail && userEmail.id_Usuario !== parseInt(id)) {
+        throw new Error("El correo electrónico ya está siendo usado por otro usuario");
       }
     }
 
-    // 1. Llamamos al método update del repositorio
-    const usuarioActualizado = await this.IUsuarioRepositorio.update(id, datosNuevos);
-
-    // 2. Si el repositorio devuelve null, lanzamos un error 404
-    if (!usuarioActualizado) {
-      const error = new Error("No se pudo actualizar: Usuario no encontrado");
-      error.statusCode = 404;
-      throw error;
+    // 2. Si se intenta actualizar la cédula, validar que no pertenezca a otro usuario
+    if (data.cedula) {
+      const userCedula = await this.IUsuarioRepositorio.findByCedula(data.cedula);
+      if (userCedula && userCedula.id_Usuario !== parseInt(id)) {
+        throw new Error("La cédula ya está siendo usada por otro usuario");
+      }
     }
 
-    return usuarioActualizado;
+    return await this.IUsuarioRepositorio.update(id, data);
   }
 }
 

@@ -1,7 +1,12 @@
-import { DataGrid } from '@mui/x-data-grid';
-import { columns, rows } from '../internals/data/gridData';
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'; // 🛡️ CORRECCIÓN: Se agregó 'type'
 
-export default function CustomizedDataGrid() {
+// Definimos qué parámetros va a recibir este componente
+interface CustomizedDataGridProps {
+  rows: any[];
+  columns: GridColDef[];
+}
+
+export default function CustomizedDataGrid({ rows, columns }: CustomizedDataGridProps) {
   return (
     <DataGrid
       checkboxSelection

@@ -1,17 +1,52 @@
 const Usuario = require("../Dominio/Entidades/Usuario");
 const UsuarioModel = require("./UsuarioModel");
-// Importamos el modelo de Departamentos para habilitar los JOINs
 const DepartamentosModel = require("../../Departamentos/Infraestructura/DepartamentosModel");
 
 class UsuarioRepositorySequelize {
-  // Operación: CREAR USUARIO (Con relación)
+  
+  // Buscar por cédula para validación de duplicados
+  async findByCedula(cedula) {
+    const doc = await UsuarioModel.findOne({ where: { cedula } });
+    if (!doc) return null;
+    return new Usuario({
+      id_Usuario: doc.id_Usuario,
+      nombre: doc.nombre,
+      correo: doc.correo,
+      contraseña: doc.contraseña,
+      rol: doc.rol,
+      cedula: doc.cedula,
+      telefono: doc.telefono,
+      id_departamento: doc.id_departamento
+    });
+  }
+
+  // Buscar por correo para validación de duplicados y login
+  async findByEmail(correo) {
+    const doc = await UsuarioModel.findOne({ where: { correo } });
+    if (!doc) return null;
+
+    return new Usuario({
+      id_Usuario: doc.id_Usuario,
+      nombre: doc.nombre,
+      correo: doc.correo,
+      contraseña: doc.contraseña,
+      rol: doc.rol,
+      cedula: doc.cedula,
+      telefono: doc.telefono,
+      id_departamento: doc.id_departamento
+    });
+  }
+
+  // Operación: CREAR USUARIO
   async save(usuario) {
     const doc = await UsuarioModel.create({
       nombre: usuario.nombre,
       correo: usuario.correo,
       contraseña: usuario.contraseña,
       rol: usuario.rol,
-      id_departamento: usuario.id_departamento // Se guarda la FK
+      cedula: usuario.cedula,
+      telefono: usuario.telefono,
+      id_departamento: usuario.id_departamento
     });
 
     return new Usuario({
@@ -20,14 +55,16 @@ class UsuarioRepositorySequelize {
       correo: doc.correo,
       contraseña: doc.contraseña,
       rol: doc.rol,
+      cedula: doc.cedula,
+      telefono: doc.telefono,
       id_departamento: doc.id_departamento
     });
   }
 
-  // Operación: OBTENER POR ID (Incluyendo datos del departamento)
+  // Operación: OBTENER POR ID
   async findById(id) {
     const doc = await UsuarioModel.findByPk(id, {
-      include: [{ model: DepartamentosModel }] // Trae el objeto Departamento asociado
+      include: [{ model: DepartamentosModel }]
     });
 
     if (!doc) return null;
@@ -38,10 +75,11 @@ class UsuarioRepositorySequelize {
       correo: doc.correo,
       contraseña: doc.contraseña,
       rol: doc.rol,
+      cedula: doc.cedula,
+      telefono: doc.telefono,
       id_departamento: doc.id_departamento
     });
 
-    // Si existe el departamento, lo inyectamos como propiedad extra
     if (doc.Departamento) {
       u.nombre_departamento = doc.Departamento.nombre_departamento;
     }
@@ -49,7 +87,7 @@ class UsuarioRepositorySequelize {
     return u;
   }
 
-  // Operación: LISTAR TODOS (Optimizado para reportes)
+  // Operación: LISTAR TODOS
   async findAll() {
     const docs = await UsuarioModel.findAll({
       include: [{ model: DepartamentosModel }]
@@ -62,6 +100,8 @@ class UsuarioRepositorySequelize {
         correo: doc.correo,
         contraseña: doc.contraseña,
         rol: doc.rol,
+        cedula: doc.cedula,
+        telefono: doc.telefono,
         id_departamento: doc.id_departamento
       });
 
@@ -78,6 +118,8 @@ class UsuarioRepositorySequelize {
       nombre: usuarioData.nombre,
       correo: usuarioData.correo,
       rol: usuarioData.rol,
+      cedula: usuarioData.cedula,
+      telefono: usuarioData.telefono,
       id_departamento: usuarioData.id_departamento
     }, {
       where: { id_Usuario: id }
@@ -91,20 +133,6 @@ class UsuarioRepositorySequelize {
   async delete(id) {
     return await UsuarioModel.destroy({
       where: { id_Usuario: id }
-    });
-  }
-
-  async findByEmail(correo) {
-    const doc = await UsuarioModel.findOne({ where: { correo } });
-    if (!doc) return null;
-
-    return new Usuario({
-        id_Usuario: doc.id_Usuario,
-        nombre: doc.nombre,
-        correo: doc.correo,
-        contraseña: doc.contraseña,
-        rol: doc.rol,
-        id_departamento: doc.id_departamento
     });
   }
 }

@@ -1,22 +1,26 @@
-// La entidad de dominio es la misma para ambos proyectos
 const Usuario = require("../Dominio/Entidades/Usuario");
+const { hashPassword } = require("../../Shared/Infrastructure/Security/HashHelper");
 
 class CrearUsuario {
   constructor(IUsuarioRepositorio) {
-    // Aquí inyectamos la implementación (Sequelize o Mongoose)
     this.IUsuarioRepositorio = IUsuarioRepositorio;
   }
 
   async ejecutar(data) {
-    // 1. Instanciamos la entidad de dominio para validar los datos
-    // (Tu clase Usuario ya tiene los "if (!nombre) throw Error...")
-    const usuarioEntidad = new Usuario(data); 
+    // 1. Validar duplicados
+    const emailExistente = await this.IUsuarioRepositorio.findByEmail(data.correo);
+    if (emailExistente) throw new Error("El correo ya está registrado");
 
-    // 2. Enviamos la entidad validada al repositorio
-    // No importa si save() usa .create() de Sequelize o .save() de Mongoose
+    const cedulaExistente = await this.IUsuarioRepositorio.findByCedula(data.cedula);
+    if (cedulaExistente) throw new Error("La cédula ya está registrada");
+
+    // 2. Hash de contraseña antes de crear la entidad
+    data.contraseña = await hashPassword(data.contraseña);
+
+    // 3. Crear entidad y guardar
+    const usuarioEntidad = new Usuario(data);
     return await this.IUsuarioRepositorio.save(usuarioEntidad);
   }
 }
-
 module.exports = CrearUsuario;
 

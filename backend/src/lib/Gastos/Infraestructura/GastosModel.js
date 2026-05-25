@@ -1,8 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../../../Infraestructura/database/Postgres");
-// Importamos el modelo de categorías que vas a crear
 const CategoriaModel = require("../../Categorias/Infraestructura/CategoriaModel");
-const ViaticoModel = require("../../Viaticos/Infraestructura/ViaticoModel")
+const ViaticoModel = require("../../Viaticos/Infraestructura/ViaticoModel");
 
 const GastosModel = sequelize.define("Gasto", {
   id_gasto: {
@@ -24,9 +23,9 @@ const GastosModel = sequelize.define("Gasto", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  foto_comprobante: {
-    type: DataTypes.STRING,
-    allowNull: true,
+  observaciones: { // Reemplazado foto_comprobante por observaciones
+    type: DataTypes.TEXT, // Usamos TEXT para dar espacio a justificaciones largas de rechazo
+    allowNull: true,      // Permitimos null porque al crearse puede ir vacío
   },
   estado_gasto: {
     type: DataTypes.ENUM('Pendiente', 'Aceptado', 'Rechazado'),
@@ -43,7 +42,7 @@ const GastosModel = sequelize.define("Gasto", {
 GastosModel.belongsTo(CategoriaModel, { foreignKey: 'id_categoria', as: 'categoria' });
 CategoriaModel.hasMany(GastosModel, { foreignKey: 'id_categoria' });
 
-GastosModel.belongsTo(ViaticoModel, { foreignKey: 'id_viatico', as: 'viatico'  });
-ViaticoModel.hasMany(GastosModel, {foreignKey: 'id_viatico'})
+GastosModel.belongsTo(ViaticoModel, { foreignKey: 'id_viatico', as: 'viatico' });
+ViaticoModel.hasMany(GastosModel, { foreignKey: 'id_viatico' });
 
 module.exports = GastosModel;

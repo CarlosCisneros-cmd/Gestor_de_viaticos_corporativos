@@ -11,7 +11,7 @@ class GastosRepositorySequelize {
       monto: gasto.monto,
       fecha_gasto: gasto.fecha_gasto,
       descripcion: gasto.descripcion,
-      foto_comprobante: gasto.foto_comprobante,
+      observaciones: gasto.observaciones, // ✨ Modificado
       estado_gasto: gasto.estado_gasto,
     });
 
@@ -22,7 +22,7 @@ class GastosRepositorySequelize {
       monto: doc.monto,
       fecha_gasto: doc.fecha_gasto,
       descripcion: doc.descripcion,
-      foto_comprobante: doc.foto_comprobante,
+      observaciones: doc.observaciones, // ✨ Modificado
       estado_gasto: doc.estado_gasto,
     });
   }
@@ -42,7 +42,7 @@ class GastosRepositorySequelize {
       monto: doc.monto,
       fecha_gasto: doc.fecha_gasto,
       descripcion: doc.descripcion,
-      foto_comprobante: doc.foto_comprobante,
+      observaciones: doc.observaciones, // ✨ Modificado
       estado_gasto: doc.estado_gasto,
     });
 
@@ -67,7 +67,7 @@ class GastosRepositorySequelize {
         monto: doc.monto,
         fecha_gasto: doc.fecha_gasto,
         descripcion: doc.descripcion,
-        foto_comprobante: doc.foto_comprobante,
+        observaciones: doc.observaciones, // ✨ Modificado
         estado_gasto: doc.estado_gasto,
       });
 
@@ -93,7 +93,7 @@ class GastosRepositorySequelize {
         monto: doc.monto,
         fecha_gasto: doc.fecha_gasto,
         descripcion: doc.descripcion,
-        foto_comprobante: doc.foto_comprobante,
+        observaciones: doc.observaciones, // ✨ Modificado
         estado_gasto: doc.estado_gasto,
       });
 
@@ -105,15 +105,14 @@ class GastosRepositorySequelize {
   }
 
   // Operación: ACTUALIZAR
-  // Operación: ACTUALIZAR
   async update(id, gastoData) {
     const [affectedCount] = await GastosModel.update(
       {
         id_categoria: gastoData.id_categoria,
         monto: gastoData.monto,
-        fecha_gasto: gastoData.fecha_gasto, // <-- ESTA LÍNEA FALTABA
+        fecha_gasto: gastoData.fecha_gasto,
         descripcion: gastoData.descripcion,
-        foto_comprobante: gastoData.foto_comprobante,
+        observaciones: gastoData.observaciones, // ✨ Modificado
         estado_gasto: gastoData.estado_gasto,
       },
       {

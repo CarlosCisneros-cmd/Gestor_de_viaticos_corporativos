@@ -10,6 +10,8 @@ const ListarViaticos = require("../../Aplicacion/ListarViaticos");
 const ListarPorId = require("../../Aplicacion/ListarPorId");
 const EliminarViatico = require("../../Aplicacion/EliminarViatico");
 const ListarViaticosPorUsuario = require("../../Aplicacion/ListarViaticosPorUsuario");
+const ObtenerGastoMensual = require("../../Aplicacion/ObtenerGastoMensual");
+const ObtenerGastoPorDepartamento = require("../../Aplicacion/ObtenerGastoPorDepartamento");
 
 module.exports = function registerViaticoModule(app) {
   const repo = new ViaticoRepositorySequelize();
@@ -21,6 +23,8 @@ module.exports = function registerViaticoModule(app) {
     ListarPorId: new ListarPorId(repo),
     EliminarViatico: new EliminarViatico(repo),
     ListarViaticosPorUsuario: new ListarViaticosPorUsuario(repo),
+    ObtenerGastoMensual: new ObtenerGastoMensual(repo),
+    ObtenerGastoPorDepartamento: new ObtenerGastoPorDepartamento(repo),
   });
 
   app.use("/api/viaticos", ViaticoRoutes(controller));

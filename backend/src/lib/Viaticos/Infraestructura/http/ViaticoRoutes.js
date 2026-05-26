@@ -5,22 +5,20 @@ const router = express.Router();
  * Recibe el controlador inyectado desde el index.js del módulo
  */
 module.exports = (controller) => {
-  //                                 (POST)
+  // 1. RUTAS ESTÁTICAS (Siempre van arriba para que no se confundan con /:id)
+  router.get("/estadisticas/gasto-mensual", (req, res) =>
+    controller.obtenerEstadisticasMensuales(req, res),
+  );
+  router.get(
+    "/estadisticas/gasto-departamento",
+    controller.obtenerEstadisticasPorDepartamento,
+  );
   router.post("/", controller.crear);
-
-  //                                 (GET)
   router.get("/", controller.listar);
-
-  //                                 (GET)
-  router.get("/:id", controller.obtenerPorId);
-
-  //                                (DELETE)
-  router.delete("/:id", controller.eliminar);
-  //                                   (EDIT)
-  router.put("/:id", controller.actualizar);
-
-  // router.get("/", viaticoController.listar);
   router.get("/usuario/:id", controller.listarPorUsuario);
+  router.get("/:id", controller.obtenerPorId);
+  router.delete("/:id", controller.eliminar);
+  router.put("/:id", controller.actualizar);
 
   return router;
 };

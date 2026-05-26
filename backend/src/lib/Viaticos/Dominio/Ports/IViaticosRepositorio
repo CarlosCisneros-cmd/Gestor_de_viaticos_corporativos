@@ -1,9 +1,25 @@
 class IViaticosRepositorio {
-  async save(viatico) { throw new Error("Método no implementado"); }
-  async findAll() { throw new Error("Método no implementado"); }
-  async findById(id) { throw new Error("Método no implementado"); }
-  async update(id, viatico) { throw new Error("Método no implementado"); }
-  async delete(id) { throw new Error("Método no implementado"); }
+  async save(viatico) {
+    throw new Error("Método no implementado");
+  }
+  async findAll() {
+    throw new Error("Método no implementado");
+  }
+  async findById(id) {
+    throw new Error("Método no implementado");
+  }
+  async update(id, viatico) {
+    throw new Error("Método no implementado");
+  }
+  async delete(id) {
+    throw new Error("Método no implementado");
+  }
+  async obtenerGastoMensualPorAnio(anio) {
+    throw new Error("Método no implementado");
+  }
+  async obtenerGastoPorDepartamento(anio) {
+    throw new Error("Método no implementado");
+  }
 }
 
 module.exports = IViaticosRepositorio;

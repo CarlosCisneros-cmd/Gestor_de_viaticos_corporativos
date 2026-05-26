@@ -22,7 +22,7 @@ import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import AssignmentTurnedInRoundedIcon from "@mui/icons-material/AssignmentTurnedInRounded";
 
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -60,6 +60,37 @@ export default function ListarViaticos() {
   const { user } = useAuth();
   const isAdmin = user?.rol === "Administrador";
 
+  const handleOpenEdit = useCallback((viatico: any) => {
+    setViaticoEdit({ ...viatico });
+    setOpenModal(true);
+  }, []);
+
+  const handleDelete = useCallback(async (id: number) => {
+    if (
+      window.confirm(
+        "¿Estás seguro de eliminar este viático? Se podrían perder los gastos asociados.",
+      )
+    ) {
+      try {
+        const response = await fetch(
+          `http://localhost:3977/api/viaticos/${id}`,
+          {
+            method: "DELETE",
+          },
+        );
+        if (response.ok) {
+          setRows((prevRows) =>
+            prevRows.filter((row) => row.id_Viatico !== id),
+          );
+        } else {
+          alert("Error al eliminar el viático.");
+        }
+      } catch (error) {
+        console.error("Error al eliminar:", error);
+      }
+    }
+  }, []);
+
   const columns: GridColDef[] = useMemo(
     () => [
       {
@@ -68,6 +99,17 @@ export default function ListarViaticos() {
         flex: 1.5,
         minWidth: 220,
       },
+      ...(isAdmin
+        ? [
+            {
+              field: "nombre_solicitante",
+              headerName: "Usuario",
+              flex: 1.2,
+              minWidth: 180,
+              renderCell: (params: any) => params.value || "N/A",
+            },
+          ]
+        : []),
       {
         field: "presupuesto_asignado",
         headerName: "Presupuesto ($)",
@@ -116,7 +158,7 @@ export default function ListarViaticos() {
         field: "acciones",
         headerName: "Acciones",
         flex: 1,
-        minWidth: 200,
+        minWidth: 150,
         sortable: false,
         disableColumnMenu: true,
         renderCell: (params) => {
@@ -138,7 +180,6 @@ export default function ListarViaticos() {
                 Gastos
               </Button>
 
-              {/* Botón Editar / Asignar Estado */}
               <IconButton
                 color="secondary"
                 size="small"
@@ -152,7 +193,6 @@ export default function ListarViaticos() {
                 )}
               </IconButton>
 
-              {/* Botón Eliminar (Solo visible si NO es admin) */}
               {!isAdmin && (
                 <IconButton
                   color="error"
@@ -168,7 +208,7 @@ export default function ListarViaticos() {
         },
       },
     ],
-    [navigate, isAdmin],
+    [navigate, isAdmin, handleOpenEdit, handleDelete],
   );
 
   const cargarViaticos = async () => {
@@ -193,37 +233,6 @@ export default function ListarViaticos() {
   useEffect(() => {
     cargarViaticos();
   }, [user]);
-
-  // --- LÓGICA DE ELIMINAR ---
-  const handleDelete = async (id: number) => {
-    if (
-      window.confirm(
-        "¿Estás seguro de eliminar este viático? Se podrían perder los gastos asociados.",
-      )
-    ) {
-      try {
-        const response = await fetch(
-          `http://localhost:3977/api/viaticos/${id}`,
-          {
-            method: "DELETE",
-          },
-        );
-        if (response.ok) {
-          setRows(rows.filter((row) => row.id_Viatico !== id));
-        } else {
-          alert("Error al eliminar el viático.");
-        }
-      } catch (error) {
-        console.error("Error al eliminar:", error);
-      }
-    }
-  };
-
-  // --- LÓGICA DE EDICIÓN (MODAL) ---
-  const handleOpenEdit = (viatico: any) => {
-    setViaticoEdit({ ...viatico });
-    setOpenModal(true);
-  };
 
   const handleCloseEdit = () => {
     setOpenModal(false);
@@ -311,7 +320,6 @@ export default function ListarViaticos() {
         </DialogTitle>
         <DialogContent dividers>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 1 }}>
-            {/* Fecha de Solicitud: Siempre visible y bloqueada para todos */}
             <TextField
               label="Fecha de Solicitud (Solo lectura)"
               value={formatSafeDate(viaticoEdit?.fecha_solicitud)}
@@ -319,7 +327,6 @@ export default function ListarViaticos() {
               fullWidth
             />
 
-            {/* Campos exclusivos para el Usuario (No Admin) */}
             {!isAdmin && (
               <>
                 <TextField
@@ -362,7 +369,6 @@ export default function ListarViaticos() {
               </>
             )}
 
-            {/* Presupuesto Asignado */}
             <TextField
               label="Presupuesto Asignado ($)"
               type="number"
@@ -386,7 +392,6 @@ export default function ListarViaticos() {
               }
             />
 
-            {/* Estado del Viático (Exclusivo para el Admin) */}
             {isAdmin && (
               <FormControl fullWidth>
                 <InputLabel>Estado de Aprobación</InputLabel>

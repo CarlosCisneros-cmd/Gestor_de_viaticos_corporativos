@@ -7,6 +7,8 @@ class ViaticoController {
     EliminarViatico,
     ActualizarViatico,
     ListarViaticosPorUsuario,
+    ObtenerGastoMensual,
+    ObtenerGastoPorDepartamento,
   }) {
     this.CrearViatico = CrearViatico;
     this.ListarViaticos = ListarViaticos;
@@ -14,6 +16,8 @@ class ViaticoController {
     this.EliminarViatico = EliminarViatico;
     this.ActualizarViatico = ActualizarViatico;
     this.ListarViaticosPorUsuario = ListarViaticosPorUsuario;
+    this.ObtenerGastoMensual = ObtenerGastoMensual;
+    this.ObtenerGastoPorDepartamento = ObtenerGastoPorDepartamento;
   }
 
   // Actividad 2: Implementar operación CREAR Viático
@@ -58,7 +62,7 @@ class ViaticoController {
     }
   };
 
-  // Actividad 2: Implementar operación ACTUALIZAR Viático
+  // Implementar operación ACTUALIZAR Viático
   actualizar = async (req, res) => {
     try {
       const { id } = req.params;
@@ -82,6 +86,32 @@ class ViaticoController {
       res.json(viaticos);
     } catch (error) {
       res.status(500).json({ error: error.message });
+    }
+  };
+
+  ////////
+  obtenerEstadisticasMensuales = async (req, res) => {
+    try {
+      const anio = req.query.anio || new Date().getFullYear();
+
+      const datos = await this.ObtenerGastoMensual.ejecutar(anio);
+
+      return res.status(200).json(datos);
+    } catch (error) {
+      console.error("Error al obtener estadísticas:", error);
+      return res.status(500).json({ error: "Error interno del servidor" });
+    }
+  };
+
+  //////
+  obtenerEstadisticasPorDepartamento = async (req, res) => {
+    try {
+      const anio = req.query.anio || new Date().getFullYear();
+      const datos = await this.ObtenerGastoPorDepartamento.ejecutar(anio);
+      return res.status(200).json(datos);
+    } catch (error) {
+      console.error("Error al obtener estadísticas por departamento:", error);
+      return res.status(500).json({ error: "Error interno del servidor" });
     }
   };
 }

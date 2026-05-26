@@ -13,10 +13,11 @@ import SideMenu from "./dashboard/components/MenuLateral";
 import ListarViaticos from "./vistas/ListarViaticos";
 import IngresarViatico from "./vistas/IngresarViatico";
 import DetalleGastos from "./vistas/DetalleGastos";
-import Login from "./vistas/Login"; 
-import Departamentos from "./vistas/Departamentos"; 
-import Categorias from "./vistas/CrearCategoria"; 
-import Usuarios from "./vistas/Usuarios"; // 👈 Añadido: Importación de tu vista de Usuarios
+import Login from "./vistas/Login";
+import Departamentos from "./vistas/Departamentos";
+import Categorias from "./vistas/CrearCategoria";
+import Usuarios from "./vistas/Usuarios";
+import EstadisticasGastos from "./vistas/EstadisticasGastos"; // 👈 1. IMPORTAMOS LA NUEVA VISTA
 
 export default function App(props: { disableCustomTheme?: boolean }) {
   return (
@@ -24,14 +25,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
       <CssBaseline enableColorScheme />
       <BrowserRouter>
         <Routes>
-          {/* ========================================================= */}
-          {/* 🔓 1. RUTA DE LOGIN (Pantalla Completa)                     */}
-          {/* ========================================================= */}
           <Route path="/login" element={<Login />} />
-          
-          {/* ========================================================= */}
-          {/* 🖥️ 2. ESTRUCTURA PRINCIPAL (Con Menú Lateral y Navbar)    */}
-          {/* ========================================================= */}
+
           <Route
             path="/*"
             element={
@@ -60,28 +55,53 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                       width: "auto",
                     }}
                   >
-                    <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
+                    <Box
+                      sx={{
+                        width: "100%",
+                        maxWidth: { sm: "100%", md: "1700px" },
+                      }}
+                    >
                       <Header />
 
                       <Box sx={{ mt: 4, width: "100%" }}>
                         <Routes>
-                          {/* Sub-Rutas de la Aplicación */}
-                          <Route path="/" element={<Navigate to="/viaticos" replace />} />
-                          <Route path="/viaticos" element={<ListarViaticos />} />
+                          <Route
+                            path="/"
+                            element={<Navigate to="/viaticos" replace />}
+                          />
+                          <Route
+                            path="/viaticos"
+                            element={<ListarViaticos />}
+                          />
                           <Route path="/crear" element={<IngresarViatico />} />
-                          <Route path="/viaticos/:id/gastos" element={<DetalleGastos />} />
-                          
-                          {/* Ruta de Departamentos */}
-                          <Route path="/admin/crear-departamento" element={<Departamentos />} />
+                          <Route
+                            path="/viaticos/:id/gastos"
+                            element={<DetalleGastos />}
+                          />
 
-                          {/* Ruta de Categorías */}
-                          <Route path="/admin/crear-categoria" element={<Categorias />} />
+                          <Route
+                            path="/admin/crear-departamento"
+                            element={<Departamentos />}
+                          />
+                          <Route
+                            path="/admin/crear-categoria"
+                            element={<Categorias />}
+                          />
+                          <Route
+                            path="/admin/crear-usuario"
+                            element={<Usuarios />}
+                          />
 
-                          {/* 👥 Ruta de Usuarios (Mismo patrón que departamentos y categorías) */}
-                          <Route path="/admin/crear-usuario" element={<Usuarios />} />
+                          {/* 📊 2. VINCULAMOS LA RUTA CON EL MENÚ LATERAL */}
+                          <Route
+                            path="/admin/estadisticas"
+                            element={<EstadisticasGastos />}
+                          />
 
-                          {/* Captura cualquier error de sub-ruta interna */}
-                          <Route path="*" element={<Navigate to="/viaticos" replace />} />
+                          <Route
+                            path="*"
+                            element={<Navigate to="/viaticos" replace />}
+                          />
                         </Routes>
                       </Box>
                     </Box>

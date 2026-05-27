@@ -13,6 +13,10 @@ module.exports = (controller) => {
     "/estadisticas/gasto-departamento",
     controller.obtenerEstadisticasPorDepartamento,
   );
+  router.get(
+    "/estadisticas/gasto-usuario",
+    controller.obtenerEstadisticasPorUsuario,
+  );
   router.post("/", controller.crear);
   router.get("/", controller.listar);
   router.get("/usuario/:id", controller.listarPorUsuario);

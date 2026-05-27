@@ -9,6 +9,7 @@ class ViaticoController {
     ListarViaticosPorUsuario,
     ObtenerGastoMensual,
     ObtenerGastoPorDepartamento,
+    ObtenerGastoPorUsuario,
   }) {
     this.CrearViatico = CrearViatico;
     this.ListarViaticos = ListarViaticos;
@@ -18,6 +19,7 @@ class ViaticoController {
     this.ListarViaticosPorUsuario = ListarViaticosPorUsuario;
     this.ObtenerGastoMensual = ObtenerGastoMensual;
     this.ObtenerGastoPorDepartamento = ObtenerGastoPorDepartamento;
+    this.ObtenerGastoPorUsuario = ObtenerGastoPorUsuario;
   }
 
   // Actividad 2: Implementar operación CREAR Viático
@@ -112,6 +114,24 @@ class ViaticoController {
     } catch (error) {
       console.error("Error al obtener estadísticas por departamento:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
+    }
+  };
+
+  // En tu ViaticoController.js
+  obtenerEstadisticasPorUsuario = async (req, res) => {
+    try {
+      const { anio, departamento, mes } = req.query;
+
+      const datos = await this.ObtenerGastoPorUsuario.ejecutar(
+        anio,
+        departamento,
+        mes,
+      );
+
+      return res.status(200).json(datos);
+    } catch (error) {
+      console.error("Error al obtener estadísticas por usuario:", error);
+      return res.status(500).json({ error: error.message });
     }
   };
 }

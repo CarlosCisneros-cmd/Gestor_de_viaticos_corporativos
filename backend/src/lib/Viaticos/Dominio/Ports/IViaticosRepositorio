@@ -20,6 +20,9 @@ class IViaticosRepositorio {
   async obtenerGastoPorDepartamento(anio) {
     throw new Error("Método no implementado");
   }
+  async obtenerGastoPorUsuario(anio) {
+    throw new Error("Método no implementado");
+  }
 }
 
 module.exports = IViaticosRepositorio;

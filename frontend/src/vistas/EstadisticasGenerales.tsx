@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -10,8 +10,6 @@ import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-
-// Gráficas de MUI
 import { BarChart } from "@mui/x-charts/BarChart";
 
 interface DataMensual {
@@ -24,22 +22,27 @@ interface DataDepartamento {
   total: number;
 }
 
-export default function EstadisticasGastos() {
+export default function EstadisticasGenerales() {
   const [datosMensuales, setDatosMensuales] = useState<DataMensual[]>([]);
   const [datosDeptos, setDatosDeptos] = useState<DataDepartamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [anio, setAnio] = useState<number>(new Date().getFullYear());
 
-  // KPIs
+  // Cálculos de KPIs basados en el estado
   const totalAnual = datosMensuales.reduce((sum, item) => sum + item.total, 0);
   const mesMaximo = [...datosMensuales].sort((a, b) => b.total - a.total)[0];
+  const deptoMaximo = [...datosDeptos].sort((a, b) => b.total - a.total)[0];
+  const totalDeptosCount = datosDeptos.length;
+  const promedioDeptos =
+    totalDeptosCount > 0
+      ? datosDeptos.reduce((sum, item) => sum + item.total, 0) /
+        totalDeptosCount
+      : 0;
 
   useEffect(() => {
-    const cargarTodo = async () => {
+    const cargarDatosGenerales = async () => {
       try {
         setLoading(true);
-
-        // Ejecutamos ambas peticiones en paralelo
         const [resMensual, resDeptos] = await Promise.all([
           fetch(
             `http://localhost:3977/api/viaticos/estadisticas/gasto-mensual?anio=${anio}`,
@@ -50,26 +53,22 @@ export default function EstadisticasGastos() {
         ]);
 
         if (resMensual.ok && resDeptos.ok) {
-          const dataM = await resMensual.json();
-          const dataD = await resDeptos.json();
-          setDatosMensuales(dataM);
-          setDatosDeptos(dataD);
+          setDatosMensuales(await resMensual.json());
+          setDatosDeptos(await resDeptos.json());
         }
       } catch (error) {
-        console.error("Error al cargar las métricas:", error);
+        console.error("Error al cargar las métricas generales:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    cargarTodo();
+    cargarDatosGenerales();
   }, [anio]);
 
-  // Preparación de datos para la gráfica de Meses
+  // Preparación de arreglos para los gráficos
   const mesesLabels = datosMensuales.map((d) => d.mes);
   const mesesValores = datosMensuales.map((d) => d.total);
-
-  // Preparación de datos para la gráfica de Departamentos
   const deptosLabels = datosDeptos.map((d) => d.departamento);
   const deptosValores = datosDeptos.map((d) => d.total);
 
@@ -89,7 +88,7 @@ export default function EstadisticasGastos() {
             Panel de Analítica Presupuestaria
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Consolidación y distribución del gasto institucional.
+            Consolidación y distribución del gasto institucional global.
           </Typography>
         </Box>
 
@@ -123,7 +122,7 @@ export default function EstadisticasGastos() {
       ) : (
         <Grid container spacing={3}>
           {/* Tarjetas KPI */}
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Paper
               variant="outlined"
               sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}
@@ -144,7 +143,7 @@ export default function EstadisticasGastos() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Paper
               variant="outlined"
               sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}
@@ -168,15 +167,24 @@ export default function EstadisticasGastos() {
           </Grid>
 
           {/* Gráfica 1: Histórico Mensual */}
-          <Grid item xs={12} md={6}>
-            <Paper variant="outlined" sx={{ p: 3, height: "100%" }}>
+          <Grid size={{ xs: 12 }}>
+            <Paper
+              variant="outlined"
+              sx={{ p: 3, width: "100%", overflowX: "auto" }}
+            >
               <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
                 Histórico Consolidado de Gastos por Mes
               </Typography>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Box
+                sx={{
+                  minWidth: 650,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
                 <BarChart
-                  width={500}
-                  height={300}
+                  width={800}
+                  height={350}
                   series={[
                     {
                       data: mesesValores,
@@ -191,31 +199,100 @@ export default function EstadisticasGastos() {
           </Grid>
 
           {/* Gráfica 2: Distribución por Departamento */}
-          <Grid item xs={12} md={6}>
-            <Paper variant="outlined" sx={{ p: 3, height: "100%" }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                Distribución del Presupuesto por Departamento
-              </Typography>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 600 }}>
+              Análisis por Departamento
+            </Typography>
+
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <Paper variant="outlined" sx={{ p: 2 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600 }}
+                  >
+                    TOP GASTO
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                    {deptoMaximo?.departamento || "N/A"}
+                  </Typography>
+                  <Typography variant="body2" color="primary">
+                    ${deptoMaximo?.total.toFixed(2) || "0.00"}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <Paper variant="outlined" sx={{ p: 2 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600 }}
+                  >
+                    PROMEDIO
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                    ${promedioDeptos.toFixed(2)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Gasto medio por área
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <Paper variant="outlined" sx={{ p: 2 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600 }}
+                  >
+                    TOTAL ÁREAS
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                    {totalDeptosCount}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Departamentos con viáticos
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+
+            <Paper
+              variant="outlined"
+              sx={{ p: 3, width: "100%", overflowX: "auto" }}
+            >
+              <Box
+                sx={{
+                  minWidth: 650,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
                 {datosDeptos.length > 0 ? (
                   <BarChart
-                    width={500}
-                    height={300}
+                    width={800}
+                    height={350}
                     series={[
                       {
                         data: deptosValores,
                         label: "Consumo ($)",
                         color: "#2e7d32",
                       },
-                    ]} // Color verde para diferenciarlo
+                    ]}
                     xAxis={[{ data: deptosLabels, scaleType: "band" }]}
                   />
                 ) : (
                   <Box
-                    sx={{ display: "flex", alignItems: "center", height: 200 }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: 350,
+                    }}
                   >
                     <Typography color="text.secondary">
-                      No hay viáticos registrados para este año fiscal.
+                      No hay registros para este año.
                     </Typography>
                   </Box>
                 )}

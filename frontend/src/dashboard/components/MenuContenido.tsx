@@ -4,13 +4,15 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
+import Collapse from "@mui/material/Collapse";
+import Typography from "@mui/material/Typography"; // <--- NUEVO: Importación necesaria para estilizar el texto seguro
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useState } from "react";
 
 // Iconos existentes
 import FlightTakeoffRoundedIcon from "@mui/icons-material/FlightTakeoffRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
-import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 
 // Iconos para el administrador
 import PersonAddRoundedIcon from "@mui/icons-material/PersonAddRounded";
@@ -18,14 +20,26 @@ import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import BusinessIcon from "@mui/icons-material/Business";
 import CategoryIcon from "@mui/icons-material/Category";
 
+// Nuevos iconos para el menú desplegable
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+
 export default function MenuContenido() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
 
-  // Definimos los menús según el rol
+  // Estado para controlar la apertura del menú de estadísticas
+  const [openStats, setOpenStats] = useState(false);
+
+  const handleStatsClick = () => {
+    setOpenStats(!openStats);
+  };
+
   const isAdmin = user?.rol === "Administrador";
 
+  // Lista principal superior
   const mainListItems = isAdmin
     ? [
         {
@@ -60,26 +74,11 @@ export default function MenuContenido() {
           icon: <FlightTakeoffRoundedIcon />,
           path: "/crear",
         },
-        {
-          text: "Aprobaciones",
-          icon: <FactCheckRoundedIcon />,
-          path: "/aprobaciones",
-        },
       ];
-
-  // El menú inferior ahora solo contiene Estadísticas y solo se muestra al Admin
-  const secondaryListItems = isAdmin
-    ? [
-        {
-          text: "Estadísticas",
-          icon: <BarChartRoundedIcon />,
-          path: "/admin/estadisticas",
-        },
-      ]
-    : [];
 
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: "space-between" }}>
+      {/* MENU PRINCIPAL (SUPERIOR) */}
       <List dense>
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: "block" }}>
@@ -94,20 +93,90 @@ export default function MenuContenido() {
         ))}
       </List>
 
-      {/* Renderizamos la lista secundaria solo si hay elementos (ej. para el Admin) */}
-      {secondaryListItems.length > 0 && (
+      {/* MENU SECUNDARIO DESPLEGABLE (INFERIOR - SOLO ADMIN) */}
+      {isAdmin && (
         <List dense>
-          {secondaryListItems.map((item, index) => (
-            <ListItem key={index} disablePadding sx={{ display: "block" }}>
+          {/* Botón Padre que abre/cierra el submenú */}
+          <ListItem disablePadding sx={{ display: "block" }}>
+            <ListItemButton onClick={handleStatsClick}>
+              <ListItemIcon>
+                <BarChartRoundedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Estadísticas" />
+              {openStats ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+          </ListItem>
+
+          {/* Contenedor colapsable animado */}
+          <Collapse in={openStats} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding dense>
+              {/* Opción 1: Estadísticas Generales */}
               <ListItemButton
-                selected={location.pathname === item.path}
-                onClick={() => navigate(item.path)}
+                selected={location.pathname === "/admin/estadisticas/generales"}
+                onClick={() => navigate("/admin/estadisticas/generales")}
+                sx={{
+                  pl: 2,
+                  py: 0.5,
+                }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
+                <ListItemIcon
+                  sx={{ minWidth: 34, display: "flex", alignItems: "center" }}
+                >
+                  <BarChartRoundedIcon sx={{ fontSize: 20 }} />
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: "0.85rem",
+                        fontWeight:
+                          location.pathname === "/admin/estadisticas/generales"
+                            ? 600
+                            : 400,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      Estadísticas Generales
+                    </Typography>
+                  }
+                />
               </ListItemButton>
-            </ListItem>
-          ))}
+
+              {/* Opción 2: Estadísticas de Usuarios */}
+              <ListItemButton
+                selected={location.pathname === "/admin/estadisticas/usuarios"}
+                onClick={() => navigate("/admin/estadisticas/usuarios")}
+                sx={{
+                  pl: 2,
+                  py: 0.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{ minWidth: 34, display: "flex", alignItems: "center" }}
+                >
+                  <PeopleAltRoundedIcon sx={{ fontSize: 20 }} />
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: "0.85rem",
+                        fontWeight:
+                          location.pathname === "/admin/estadisticas/usuarios"
+                            ? 600
+                            : 400,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      Estadísticas de Usuarios
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </List>
+          </Collapse>
         </List>
       )}
     </Stack>

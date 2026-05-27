@@ -17,7 +17,8 @@ import Login from "./vistas/Login";
 import Departamentos from "./vistas/Departamentos";
 import Categorias from "./vistas/CrearCategoria";
 import Usuarios from "./vistas/Usuarios";
-import EstadisticasGastos from "./vistas/EstadisticasGastos"; // 👈 1. IMPORTAMOS LA NUEVA VISTA
+import EstadisticasGenerales from "./vistas/EstadisticasGenerales";
+import EstadisticasUsuarios from "./vistas/EstadisticasUsuarios";
 
 export default function App(props: { disableCustomTheme?: boolean }) {
   return (
@@ -92,10 +93,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                             element={<Usuarios />}
                           />
 
-                          {/* 📊 2. VINCULAMOS LA RUTA CON EL MENÚ LATERAL */}
+                          {/* VINCULAMOS LA RUTA CON EL MENÚ LATERAL */}
                           <Route
-                            path="/admin/estadisticas"
-                            element={<EstadisticasGastos />}
+                            path="/admin/estadisticas/generales"
+                            element={<EstadisticasGenerales />}
+                          />
+                          <Route
+                            path="/admin/estadisticas/usuarios"
+                            element={<EstadisticasUsuarios />}
                           />
 
                           <Route

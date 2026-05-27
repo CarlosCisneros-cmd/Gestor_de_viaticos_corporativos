@@ -209,6 +209,81 @@ class ViaticoRepositorySequelize {
       total: acumulador[nombre],
     }));
   }
+
+  //// estadisticas por usuario
+  async obtenerGastoPorUsuario(anio, departamentoFiltro, mesFiltro) {
+    const { Op } = require("sequelize");
+
+    // Configuramos el rango de fechas dinámicamente
+    let fechaInicioFiltro, fechaFinFiltro;
+
+    if (mesFiltro && mesFiltro !== "Todos") {
+      const mesStr = mesFiltro.toString().padStart(2, "0");
+      // Calculamos automáticamente el último día de ese mes (28, 30 o 31)
+      const ultimoDia = new Date(anio, parseInt(mesFiltro), 0).getDate();
+
+      fechaInicioFiltro = new Date(`${anio}-${mesStr}-01T00:00:00.000Z`);
+      fechaFinFiltro = new Date(`${anio}-${mesStr}-${ultimoDia}T23:59:59.999Z`);
+    } else {
+      // Si eligió "Todos", buscamos en todo el año
+      fechaInicioFiltro = new Date(`${anio}-01-01T00:00:00.000Z`);
+      fechaFinFiltro = new Date(`${anio}-12-31T23:59:59.999Z`);
+    }
+
+    // 2. Buscamos todos los viáticos con las relaciones (Usando gte y lte)
+    const viaticos = await ViaticoModel.findAll({
+      where: {
+        estado_Viatico: "Aprobado",
+        fecha_inicio: {
+          [Op.gte]: fechaInicioFiltro,
+          [Op.lte]: fechaFinFiltro,
+        },
+      },
+      include: [
+        {
+          model: UsuarioModel,
+          attributes: ["nombre"],
+          include: [
+            {
+              model: DepartamentosModel,
+              attributes: ["nombre_departamento"],
+            },
+          ],
+        },
+      ],
+    });
+
+    // Agrupación matemática en JavaScript
+    const acumulador = {};
+
+    viaticos.forEach((viatico) => {
+      const nombreDepartamento =
+        viatico.Usuario?.Departamento?.nombre_departamento ||
+        "Sin Departamento";
+
+      // Filtro dinámico de departamento
+      if (
+        departamentoFiltro &&
+        departamentoFiltro !== "Todos" &&
+        nombreDepartamento !== departamentoFiltro
+      ) {
+        return;
+      }
+
+      const nombreUsuario = viatico.Usuario?.nombre || "Usuario Desconocido";
+      const presupuesto = parseFloat(viatico.presupuesto_asignado) || 0;
+
+      if (!acumulador[nombreUsuario]) {
+        acumulador[nombreUsuario] = 0;
+      }
+      acumulador[nombreUsuario] += presupuesto;
+    });
+
+    return Object.keys(acumulador).map((nombre) => ({
+      nombre: nombre,
+      total: acumulador[nombre],
+    }));
+  }
 }
 
 module.exports = ViaticoRepositorySequelize;

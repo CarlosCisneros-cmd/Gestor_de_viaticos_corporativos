@@ -10,7 +10,8 @@ import {
   TextField,
   MenuItem,
   Tabs,
-  Tab
+  Tab,
+  Stack
 } from '@mui/material';
 import { type GridColDef } from '@mui/x-data-grid';
 import CustomizedDataGrid from '../dashboard/components/CustomizedDataGrid';
@@ -28,7 +29,7 @@ export default function Usuarios() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   
   // Estados para Filtros Avanzados
-  const [tabActual, setTabActual] = useState(0); // 0 = Todos, 1 = Administradores, 2 = Usuarios
+  const [tabActual, setTabActual] = useState(0); 
   const [filtroDepartamento, setFiltroDepartamento] = useState<number | string>('Todos');
 
   // Campos del Formulario
@@ -174,15 +175,12 @@ export default function Usuarios() {
     return dep ? dep.nombre : `ID: ${idDep}`;
   };
 
-  // 🛠️ Lógica de Filtrado Combinada (Tab de Rol + Buscador de Departamento)
   const usuariosFiltrados = usuarios.filter((usr: any) => {
-    // A. Filtrar por pestaña de Rol
     const cumpleTab = 
       tabActual === 0 ? true :
       tabActual === 1 ? usr.rol === 'Administrador' :
       usr.rol === 'Usuario';
 
-    // B. Filtrar por selector de Departamento
     const idDepUsuario = usr.id_departamento ?? usr.id_Departamento;
     const cumpleDepartamento = 
       filtroDepartamento === 'Todos' ? true :
@@ -192,41 +190,50 @@ export default function Usuarios() {
   });
 
   const columnas: GridColDef[] = [
-    { field: 'id_Usuario', headerName: 'ID', width: 80 },
-    { field: 'nombre', headerName: 'Nombre Completo', flex: 1 },
-    { field: 'correo', headerName: 'Correo Electrónico', flex: 1 },
-    { field: 'cedula', headerName: 'Cédula', width: 120 },
-    { field: 'telefono', headerName: 'Teléfono', width: 120 },
+    { field: 'nombre', headerName: 'Nombre Completo', flex: 1.4, minWidth: 180 },
+    { field: 'correo', headerName: 'Correo Electrónico', flex: 1.6, minWidth: 220 },
+    { field: 'cedula', headerName: 'Cédula', flex: 0.9, minWidth: 110 },
+    { field: 'telefono', headerName: 'Teléfono', flex: 0.9, minWidth: 110 },
     { 
       field: 'id_departamento', 
       headerName: 'Departamento', 
-      width: 150,
+      flex: 1.1,
+      minWidth: 130,
       valueGetter: (value, row) => obtenerNombreDepartamento(row)
     },
-    { field: 'rol', headerName: 'Rol', width: 130 },
+    { field: 'rol', headerName: 'Rol', flex: 0.9, minWidth: 120 },
     {
       field: 'acciones',
       headerName: 'Acciones',
-      width: 180,
+      flex: 1.4,
+      minWidth: 200,
+      sortable: false,
+      disableColumnMenu: true,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ height: "100%", alignItems: "center" }}
+        >
           <Button 
             variant="contained" 
             color="primary" 
             size="small"
             onClick={() => handleOpenEdit(params.row)}
+            sx={{ textTransform: "none", borderRadius: 2, fontWeight: 500, px: 2 }}
           >
             Editar
           </Button>
           <Button 
-            variant="outlined" 
+            variant="contained" 
             color="error" 
             size="small"
             onClick={() => handleEliminar(params.row.id_Usuario)}
+            sx={{ textTransform: "none", borderRadius: 2, fontWeight: 500, px: 2 }}
           >
             Eliminar
           </Button>
-        </Box>
+        </Stack>
       ),
     },
   ];
@@ -235,15 +242,15 @@ export default function Usuarios() {
     <Box sx={{ width: '100%', mt: 2 }}>
       {/* Cabecera */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography component="h2" variant="h6">
+        <Typography component="h2" variant="h6" sx={{ fontWeight: 600 }}>
           Gestión de Usuarios
         </Typography>
-        <Button variant="contained" color="success" onClick={handleOpenCreate}>
+        <Button variant="contained" color="success" onClick={handleOpenCreate} sx={{ textTransform: "none", borderRadius: 2 }}>
           + Nuevo Usuario
         </Button>
       </Box>
 
-      {/* 📊 BARRA DE HERRAMIENTAS: Pestañas + Filtro de Departamento */}
+      {/* BARRA DE HERRAMIENTAS */}
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -254,19 +261,17 @@ export default function Usuarios() {
         borderColor: 'divider',
         flexWrap: 'wrap'
       }}>
-        {/* Separación por Roles usando Tabs */}
         <Tabs 
           value={tabActual} 
           onChange={(_, nuevoValue) => setTabActual(nuevoValue)}
           textColor="primary"
           indicatorColor="primary"
         >
-          <Tab label="Todos" />
-          <Tab label="Administradores" />
-          <Tab label="Usuarios (Empleados)" />
+          <Tab label="Todos" sx={{ textTransform: 'none', fontWeight: 500 }} />
+          <Tab label="Administradores" sx={{ textTransform: 'none', fontWeight: 500 }} />
+          <Tab label="Usuarios (Empleados)" sx={{ textTransform: 'none', fontWeight: 500 }} />
         </Tabs>
 
-        {/* Buscador/Filtro por Departamento */}
         <TextField
           select
           size="small"
@@ -284,12 +289,47 @@ export default function Usuarios() {
         </TextField>
       </Box>
       
-      {/* Renderiza las filas que coincidan con los filtros dinámicos */}
-      <CustomizedDataGrid rows={usuariosFiltrados} columns={columnas} />
+      {/* CONTENEDOR CON SCROLL NATIVO RESTAURADO Y SEGURO */}
+      <Box
+        sx={{
+          width: '100%',
+          height: 450, // Definimos la altura del visor para permitir scroll libre sin que se rompa el virtualScroller
+          '& .MuiDataGrid-root': {
+            border: 'none',
+          },
+          // Ocultar definitivamente los checkboxes de selección
+          '& .MuiDataGrid-columnHeaderCheckbox, & .MuiDataGrid-cellCheckbox, & input[type="checkbox"]': {
+            display: 'none !important',
+          },
+          // Limpiar el fondo azul de selección activa residual
+          '& .Mui-selected, & .state-selected': {
+            backgroundColor: 'transparent !important',
+          },
+          // Forzar la altura limpia de 70px en las filas
+          '& .MuiDataGrid-row': {
+            minHeight: '70px !important',
+            maxHeight: '70px !important',
+          },
+          // Centrar celdas verticalmente
+          '& .MuiDataGrid-cell': {
+            display: 'flex !important',
+            alignItems: 'center !important',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            paddingLeft: '0px !important'
+          }
+        }}
+      >
+        <CustomizedDataGrid 
+          rows={usuariosFiltrados} 
+          columns={columnas}
+          getRowHeight={() => 70}
+        />
+      </Box>
 
       {/* Modal de Formulario */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{editMode ? 'Editar Usuario' : 'Nuevo Usuario'}</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>{editMode ? 'Editar Usuario' : 'Nuevo Usuario'}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             autoFocus
@@ -374,10 +414,10 @@ export default function Usuarios() {
           </TextField>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={() => setOpenModal(false)} color="inherit">
+          <Button onClick={() => setOpenModal(false)} color="inherit" sx={{ textTransform: "none" }}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button onClick={handleSave} variant="contained" color="primary" sx={{ textTransform: "none", borderRadius: 2 }}>
             Guardar
           </Button>
         </DialogActions>

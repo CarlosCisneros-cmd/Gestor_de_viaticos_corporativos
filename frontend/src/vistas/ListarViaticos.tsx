@@ -26,6 +26,11 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+interface Departamento {
+  id_departamento: number;
+  nombre: string;
+}
+
 const formatSafeDate = (value: any) => {
   if (!value) return "";
 
@@ -51,6 +56,11 @@ const formatSafeDate = (value: any) => {
 export default function ListarViaticos() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Estados para soportar el Filtro de Departamentos
+  const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
+  const [usuarios, setUsuarios] = useState<any[]>([]);
+  const [filtroDepartamento, setFiltroDepartamento] = useState<number | string>("Todos");
 
   // Estados para el Modal de Edición
   const [openModal, setOpenModal] = useState(false);
@@ -230,8 +240,40 @@ export default function ListarViaticos() {
     }
   };
 
+  const cargarDepartamentos = async () => {
+    if (!isAdmin) return;
+    try {
+      const response = await fetch("http://localhost:3977/api/departamentos");
+      if (response.ok) {
+        const data = await response.json();
+        const departamentosNormalizados = data.map((dep: any) => ({
+          id_departamento: dep.id_departamento ?? dep.id_Departamento ?? dep.id,
+          nombre: dep.nombre ?? dep.nombre_departamento ?? Object.values(dep)[1] ?? "Sin Nombre"
+        }));
+        setDepartamentos(departamentosNormalizados);
+      }
+    } catch (error) {
+      console.error("Error al obtener departamentos:", error);
+    }
+  };
+
+  const cargarUsuarios = async () => {
+    if (!isAdmin) return;
+    try {
+      const response = await fetch("http://localhost:3977/api/usuarios");
+      if (response.ok) {
+        const data = await response.json();
+        setUsuarios(data);
+      }
+    } catch (error) {
+      console.error("Error al obtener usuarios:", error);
+    }
+  };
+
   useEffect(() => {
     cargarViaticos();
+    cargarDepartamentos();
+    cargarUsuarios();
   }, [user]);
 
   const handleCloseEdit = () => {
@@ -274,20 +316,54 @@ export default function ListarViaticos() {
     }
   };
 
+  // Filtrado reactivo en memoria basado en el pool de usuarios cargados
+  const rowsFiltradas = useMemo(() => {
+    if (!isAdmin || filtroDepartamento === "Todos") return rows;
+
+    return rows.filter((viatico) => {
+      const idUsuarioViatico = viatico.id_Usuario ?? viatico.id_usuario;
+      const usuarioEncontrado = usuarios.find((u) => u.id_Usuario === idUsuarioViatico);
+      if (!usuarioEncontrado) return false;
+
+      const idDep = usuarioEncontrado.id_departamento ?? usuarioEncontrado.id_Departamento;
+      return idDep === Number(filtroDepartamento);
+    });
+  }, [rows, filtroDepartamento, usuarios, isAdmin]);
+
   return (
     <Box sx={{ width: "100%", mt: 2 }}>
-      <Box>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
-          Mis Solicitudes de Viáticos
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Historial de presupuestos asignados para el control de viáticos.
-        </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mb: 1 }}>
+        <Box>
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
+            Mis Solicitudes de Viáticos
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Historial de presupuestos asignados para el control de viáticos.
+          </Typography>
+        </Box>
+
+        {isAdmin && (
+          <TextField
+            select
+            size="small"
+            label="Filtrar por Departamento"
+            value={filtroDepartamento}
+            onChange={(e) => setFiltroDepartamento(e.target.value)}
+            sx={{ minWidth: 220 }}
+          >
+            <MenuItem value="Todos"><em>Mostrar Todos</em></MenuItem>
+            {departamentos.map((dep) => (
+              <MenuItem key={dep.id_departamento} value={dep.id_departamento}>
+                {dep.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
+        )}
       </Box>
 
       <Paper variant="outlined" sx={{ height: 450, width: "100%", mt: 1 }}>
         <DataGrid
-          rows={rows}
+          rows={rowsFiltradas}
           columns={columns}
           loading={loading}
           getRowId={(row) => row.id_Viatico}

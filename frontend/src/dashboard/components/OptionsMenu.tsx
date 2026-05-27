@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import Divider, { dividerClasses } from '@mui/material/Divider';
 import Menu from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import { paperClasses } from '@mui/material/Paper';
@@ -15,7 +14,7 @@ const MenuItem = styled(MuiMenuItem)({
   margin: '2px 0',
 });
 
-// 👇 DEFINIMOS EL TIPO DE LA PROPIEDAD QUE RECIBIREMOS DESDE EL MENÚ LATERAL
+// DEFINIMOS EL TIPO DE LA PROPIEDAD QUE RECIBIREMOS DESDE EL MENÚ LATERAL
 interface OptionsMenuProps {
   onLogout: () => void;
 }
@@ -32,7 +31,7 @@ export default function OptionsMenu({ onLogout }: OptionsMenuProps) {
     setAnchorEl(null);
   };
 
-  // 👇 MANEJADOR QUE CIERRA EL MENÚ VISUAL Y DISPARA EL CIERRE DE SESIÓN RECTO AL LOGIN
+  // MANEJADOR QUE CIERRA EL MENÚ VISUAL Y DISPARA EL CIERRE DE SESIÓN RECTO AL LOGIN
   const handleLogoutClick = () => {
     handleClose(); // Cierra el menú desplegable
     onLogout();    // Ejecuta la expulsión y limpia localStorage
@@ -62,19 +61,9 @@ export default function OptionsMenu({ onLogout }: OptionsMenuProps) {
           [`& .${paperClasses.root}`]: {
             padding: 0,
           },
-          [`& .${dividerClasses.root}`]: {
-            margin: '4px -4px',
-          },
         }}
       >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <Divider />
-        <MenuItem onClick={handleClose}>Add another account</MenuItem>
-        <MenuItem onClick={handleClose}>Settings</MenuItem>
-        <Divider />
-        
-        {/* 👇 CAMBIAMOS EL ONCLICK DE ESTE MENUITEM PARA VINCULARLO AL LOGOUT */}
+        {/* Dejamos únicamente la opción funcional de Logout */}
         <MenuItem
           onClick={handleLogoutClick}
           sx={{
@@ -85,7 +74,7 @@ export default function OptionsMenu({ onLogout }: OptionsMenuProps) {
           }}
         >
           <ListItemText>Logout</ListItemText>
-          <ListItemIcon>
+          <ListItemIcon sx={{ pl: 2 }}>
             <LogoutRoundedIcon fontSize="small" />
           </ListItemIcon>
         </MenuItem>

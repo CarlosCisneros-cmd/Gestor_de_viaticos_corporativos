@@ -7,7 +7,8 @@ import {
   DialogTitle, 
   DialogContent, 
   DialogActions, 
-  TextField 
+  TextField,
+  Stack
 } from '@mui/material';
 import { type GridColDef } from '@mui/x-data-grid';
 import CustomizedDataGrid from '../dashboard/components/CustomizedDataGrid';
@@ -26,7 +27,7 @@ export default function Categorias() {
       const data = await response.json();
       const rowsConId = data.map((cat: any) => ({
         ...cat,
-        id: cat.id_categoria, 
+        id: cat.id_categoria, // Mapeo interno obligatorio para DataGrid (No tocar)
       }));
       setCategorias(rowsConId);
     } catch (error) {
@@ -95,32 +96,41 @@ export default function Categorias() {
     }
   };
 
+  // Aquí quitamos la columna 'id_categoria' por completo del renderizado visual
   const columnas: GridColDef[] = [
-    { field: 'id_categoria', headerName: 'ID', width: 90 },
-    { field: 'nombre_categoria', headerName: 'Nombre de la Categoría', flex: 1 },
+    { field: 'nombre_categoria', headerName: 'Nombre de la Categoría', flex: 2, minWidth: 250 },
     {
       field: 'acciones',
       headerName: 'Acciones',
-      width: 200,
+      flex: 1,
+      minWidth: 200,
+      sortable: false,
+      disableColumnMenu: true,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ height: "100%", alignItems: "center" }}
+        >
           <Button 
             variant="contained" 
             color="primary" 
             size="small"
             onClick={() => handleOpenEdit(params.row)}
+            sx={{ textTransform: "none", borderRadius: 2, fontWeight: 500, px: 2 }}
           >
             Editar
           </Button>
           <Button 
-            variant="outlined" 
+            variant="contained" 
             color="error" 
             size="small"
             onClick={() => handleEliminar(params.row.id_categoria)}
+            sx={{ textTransform: "none", borderRadius: 2, fontWeight: 500, px: 2 }}
           >
             Eliminar
           </Button>
-        </Box>
+        </Stack>
       ),
     },
   ];
@@ -128,20 +138,55 @@ export default function Categorias() {
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography component="h2" variant="h6">
+        <Typography component="h2" variant="h6" sx={{ fontWeight: 600 }}>
           Gestión de Categorías
         </Typography>
-        <Button variant="contained" color="success" onClick={handleOpenCreate}>
+        <Button variant="contained" color="success" onClick={handleOpenCreate} sx={{ textTransform: "none", borderRadius: 2 }}>
           + Nueva Categoría
         </Button>
       </Box>
       
-      <CustomizedDataGrid rows={categorias} columns={columnas} />
+      {/* Contenedor con estilos personalizados */}
+      <Box
+        sx={{
+          width: '100%',
+          height: 400,
+          '& .MuiDataGrid-root': {
+            border: 'none',
+          },
+          // Ocultar los checkboxes laterales molestos
+          '& .MuiDataGrid-columnHeaderCheckbox, & .MuiDataGrid-cellCheckbox, & input[type="checkbox"]': {
+            display: 'none !important',
+          },
+          '& .Mui-selected, & .state-selected': {
+            backgroundColor: 'transparent !important',
+          },
+          // Altura estable de las filas
+          '& .MuiDataGrid-row': {
+            minHeight: '70px !important',
+            maxHeight: '70px !important',
+          },
+          // Centrado vertical de las celdas
+          '& .MuiDataGrid-cell': {
+            display: 'flex !important',
+            alignItems: 'center !important',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            paddingLeft: '0px !important'
+          }
+        }}
+      >
+        <CustomizedDataGrid 
+          rows={categorias} 
+          columns={columnas} 
+          getRowHeight={() => 70}
+        />
+      </Box>
 
       {/* Modal Unificado */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{editMode ? 'Editar Categoría' : 'Nueva Categoría'}</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>{editMode ? 'Editar Categoría' : 'Nueva Categoría'}</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             autoFocus
             margin="dense"
@@ -155,10 +200,10 @@ export default function Categorias() {
           />
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={() => setOpenModal(false)} color="inherit">
+          <Button onClick={() => setOpenModal(false)} color="inherit" sx={{ textTransform: "none" }}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button onClick={handleSave} variant="contained" color="primary" sx={{ textTransform: "none", borderRadius: 2 }}>
             Guardar
           </Button>
         </DialogActions>

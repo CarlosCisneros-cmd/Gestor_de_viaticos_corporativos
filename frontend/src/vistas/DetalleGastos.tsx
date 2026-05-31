@@ -34,7 +34,7 @@ export default function DetalleGastos() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [gastoAEditar, setGastoAEditar] = useState<Gasto | null>(null);
 
-  // 🔐 ADAPTACIÓN DE LOG IN: Recuperamos el rol real del almacenamiento o estado global.
+  // ADAPTACIÓN DE LOG IN: Recuperamos el rol real del almacenamiento o estado global.
   // Si usas un useAuth(), puedes cambiar esto por: const { user } = useAuth(); y usar user.rol
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const ROL_ACTUAL = storedUser.rol || "Usuario"; // Por defecto "Usuario" si no encuentra nada
@@ -336,7 +336,7 @@ export default function DetalleGastos() {
             </CardContent>
           </Card>
 
-          {/* 🔘 BOTÓN CREAR GASTO: Solo se muestra si es Empleado/Usuario */}
+          {/* BOTÓN CREAR GASTO: Solo se muestra si es Empleado/Usuario */}
           {isEmpleado && (
             <Button
               variant="contained"
@@ -353,7 +353,7 @@ export default function DetalleGastos() {
           )}
         </Box>
 
-        {/* 📦 INVOCACIÓN AL MODAL CORREGIDO: Le inyectamos el ROL_ACTUAL reactivo */}
+        {/*INVOCACIÓN AL MODAL CORREGIDO: Le inyectamos el ROL_ACTUAL reactivo */}
         <IngresarGasto
           open={modalAbierto}
           onClose={() => {

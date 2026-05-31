@@ -93,7 +93,7 @@ class GastosRepositorySequelize {
         monto: doc.monto,
         fecha_gasto: doc.fecha_gasto,
         descripcion: doc.descripcion,
-        observaciones: doc.observaciones, // ✨ Modificado
+        observaciones: doc.observaciones, 
         estado_gasto: doc.estado_gasto,
       });
 
@@ -112,7 +112,7 @@ class GastosRepositorySequelize {
         monto: gastoData.monto,
         fecha_gasto: gastoData.fecha_gasto,
         descripcion: gastoData.descripcion,
-        observaciones: gastoData.observaciones, // ✨ Modificado
+        observaciones: gastoData.observaciones, 
         estado_gasto: gastoData.estado_gasto,
       },
       {
